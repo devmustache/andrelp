@@ -1,5 +1,5 @@
 {
-  "name": "starfunnel",
+  "name": "dominandodelivery",
   "type": "module",
   "license": "CC BY-ND 4.0",
   "version": "0.1.1",
@@ -47,6 +47,7 @@
     "nanostores": "^0.10.3",
     "plyr": "^3.7.8",
     "rehype-external-links": "^3.0.0",
+    "sharp": "^0.34.3",
     "typescript": "^5.4.5",
     "vite": "^5.3.3",
     "vue": "^3.4.29",

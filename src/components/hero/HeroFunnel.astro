@@ -12,18 +12,8 @@ const { slug } = Astro.params;
 const hasImage = !!hero?.media?.thumbnail?.trim() || false;
 const hasBgImage = !!hero?.media?.background_image?.trim() || false;
 const hasPreviewVideo = !!hero?.media?.video_preview?.trim() || false;
-const hasVideo = !!hero?.media?.video_preview?.trim() || false;
 const hasEmbed = !!hero?.media?.video_id?.trim() || false;
-const hasMedia = hasImage || hasVideo || hasPreviewVideo;
-const mediaClass = () => {
-  if (!hero?.media?.aspect) return "";
-  if (hero.media.aspect == 1) return "aspect-1";
-  if (hero.media.aspect == 1.777) return "aspect-video";
-  if (hero.media.aspect == 1.25) return "aspect-5/4";
-  if (hero.media.aspect == 0.8) return "aspect-4/5";
-  if (hero.media.aspect == 0.5625) return "aspect-9/16";
-  return "";
-};
+const hasMedia = hasImage || hasPreviewVideo;
 ---
 
 {
@@ -37,6 +27,7 @@ const mediaClass = () => {
       transition:name={`hero_${slug || Math.random()}`}
       id="header"
     >
+      {/** Background base */}
       <div
         class={`parallax pointer-events-none absolute inset-0 bg-${
           hero?.style?.background || ""
@@ -48,39 +39,47 @@ const mediaClass = () => {
           style={`${hero?.style?.pattern || ""}  `}
         />
       )}
-      {hasBgImage && (
-        <div class="media parallax absolute inset-0">
-          <Picture
-            attributes={{
-              picture: {
-                class: "sm:h-screen ",
-                style: `opacity: ${hero?.media?.image_opacity || 0.7}`,
-              },
-            }}
-            src={hero.media.background_image}
-            width={1920}
-            height={1080}
-            aspect={16 / 10}
-            alt={title}
-            sizes="100vw"
-            loading="eager"
-            layout="fill"
-            artDirectives={[
-              {
-                media: "(max-width: 500px)",
-                aspect: 0.6,
-                src: hero.media.background_image,
-                breakpoints: [320, 360, 390, 412, 500, 601, 768, 1024, 1200],
-              },
-              {
-                media: "(max-width: 1000px)",
-                aspect: 1,
-                src: hero.media.background_image,
-                breakpoints: [500, 601, 768, 820, 962, 1280, 1440, 1536, 1920],
-              },
-            ]}
-          />
+
+      {/** ✅ VÍDEO DE FUNDO */}
+      {hasPreviewVideo && (
+        <div class="hero-funnel__video-bg absolute inset-0 -z-10">
+          <VideoInline
+            url={hero.media.video_preview}
+            autoplay
+            muted
+            loop
+            playsinline
+            client:idle
+          >
+            <Picture
+              src={
+                hero?.media?.thumbnail
+                  ? hero.media.thumbnail
+                  : "/src/assets/system/video-placeholder.jpeg"
+              }
+              alt={hero.title}
+              aspect={hero.media?.aspect ? hero.media?.aspect : 1.777}
+              layout="fill"
+              loading="eager"
+            />
+          </VideoInline>
         </div>
+      )}
+
+      {/** ✅ OVERLAY ESCURO SOBRE O VÍDEO */}
+      {hasPreviewVideo && (
+        <div class="hero-funnel__overlay absolute inset-0 -z-0"></div>
+      )}
+
+      {/** ✅ OVERLAY CLICÁVEL QUE ABRE O PLAYER */}
+      {hasEmbed && (
+        <VideoDialogBtn
+          client:visible
+          video_id={hero?.media?.video_id}
+          className="hero-funnel__video-overlay absolute inset-0 cursor-pointer"
+        >
+          <span class="sr-only">Assistir vídeo</span>
+        </VideoDialogBtn>
       )}
 
       <div class="relative z-10 grid w-full place-items-center">
@@ -111,57 +110,9 @@ const mediaClass = () => {
             )}
             <slot />
           </div>
-
-          <div class="grid h-full w-full place-items-center">
-            {hasMedia && (
-              <VideoDialogBtn
-                client:visible
-                video_id={hero?.media?.video_id}
-                className={`w-full overflow-hidden rounded ${mediaClass()} ${
-                  hasEmbed ? "group" : ""
-                } ${
-                  hero.style.layout === "column" ? "max-w-lg" : ""
-                } hero-funnel__media`}
-              >
-                {hasPreviewVideo && (
-                  <VideoInline url={hero.media.video_preview} client:idle delay>
-                    <Picture
-                      src={
-                        hero?.media?.thumbnail
-                          ? hero.media.thumbnail
-                          : "/src/assets/system/video-placeholder.jpeg"
-                      }
-                      alt={hero.title}
-                      sizes="(min-width: 1450px) 580px, (min-width: 768px) calc(50vw - 4rem),  calc(100vw - 4rem)"
-                      aspect={hero.media?.aspect ? hero.media?.aspect : 1.777}
-                      layout="fullWidth"
-                      loading="eager"
-                    />
-                    {hasEmbed && (
-                      <div class="absolute inset-0 z-50 grid place-items-center">
-                        <Icon
-                          name="play"
-                          class="h-20 w-20 text-secondary transition-transform duration-300 group-hover:scale-125"
-                        />
-                      </div>
-                    )}
-                  </VideoInline>
-                )}
-                {!hasPreviewVideo && (
-                  <Picture
-                    src={hero.media.thumbnail}
-                    alt={hero.title}
-                    sizes="(min-width: 1450px) 580px, (min-width: 768px) calc(50vw - 4rem),  calc(100vw - 4rem)"
-                    aspect={hero.media?.aspect ? hero.media?.aspect : 1.777}
-                    layout="fullWidth"
-                    loading="eager"
-                  />
-                )}
-              </VideoDialogBtn>
-            )}
-          </div>
         </div>
       </div>
+
       <div class={`hero-funnel__divider z-0 -mb-px`}>
         <span class="surface-base -mb-px h-72 w-full shrink-0 md:-mb-20 md:h-40" />
         <div class="surface-base h-full w-full" />
@@ -169,6 +120,7 @@ const mediaClass = () => {
     </div>
   )
 }
+
 <svg
   xmlns="http://www.w3.org/2000/svg"
   width="0"
@@ -187,52 +139,50 @@ const mediaClass = () => {
     </clipPath>
   </defs>
 </svg>
-{
-  hasEmbed && (
-    <VideoDialog
-      client:idle
-      video_id={hero?.media?.video_id}
-      embed={hero?.media?.embed}
-    >
-      <Icon name="close" class="w-6" />
-    </VideoDialog>
-  )
-}
+
+{hasEmbed && (
+  <VideoDialog
+    client:idle
+    video_id={hero?.media?.video_id}
+    embed={hero?.media?.embed}
+  >
+    <Icon name="close" class="w-6" />
+  </VideoDialog>
+)}
 
 <style lang="postcss" is:global>
-  
   .title {
-    strong, bold {
+    strong,
+    bold {
       @apply text-primary;
     }
   }
 
-  .bg-gradient { 
-    will-change: transform;
-    backface-visibility: hidden; 
-    background-image: 
-    
-    radial-gradient(50vMax at -10vw -20vw, theme(colors.secondary) 0%, theme(colors.secondary / 80%)  40%, theme(colors.secondary / 0%)  100%),
-    radial-gradient(60vMax at 100vw 100vh, theme(colors.primary) 0%, theme(colors.primary / 80%)  40%, theme(colors.primary / 0%)  100%);
-    
-     &:after {
-    content: "";
-    @apply sticky w-full h-full block inset-0 z-20 overflow-hidden opacity-20 pointer-events-none;
-    mix-blend-mode: overlay; 
-    filter: url(#noiseFilter);
-  } 
+  .hero-funnel__video-bg video {
+    @apply object-cover w-full h-full;
+  }
+
+  .hero-funnel__video-overlay {
+    background: transparent;
+    z-index: 30;
+  }
+
+  .hero-funnel__overlay {
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.55) 0%,
+      rgba(0, 0, 0, 0.6) 40%,
+      rgba(0, 0, 0, 0.8) 100%
+    );
+    z-index: 10;
   }
 
   .hero-funnel {
     min-height: max(80vh, 30rem);
     @apply z-20 overflow-hidden grid place-items-center;
 
-    &__media {
-      max-height: max(20rem, 70vh);
-      
-    }
     &__buttons {
-      @apply justify-center ;
+      @apply justify-center;
     }
 
     &__col-grid {
@@ -244,31 +194,29 @@ const mediaClass = () => {
 
       .hero-funnel__buttons {
         @apply md:justify-start;
-      } 
+      }
     }
 
-     &__row-grid {
-      @apply grid grid-cols-1 text-center gap-10 ;
+    &__row-grid {
+      @apply grid grid-cols-1 text-center gap-10;
     }
+
     &__divider {
       @apply absolute bottom-0 left-0 right-0 overflow-hidden flex flex-col;
-        
-        min-height: 5rem;
-        min-width: 1200px;
-        
-        
-        & > span {
-          @apply block;
-           clip-path: url(#heroclip);
-        }
 
+      min-height: 5rem;
+      min-width: 1200px;
+
+      & > span {
+        @apply block;
+        clip-path: url(#heroclip);
+      }
     }
 
-  &.row {
-    .hero-funnel__divider {
-      height: calc(100% - 80vh);
+    &.row {
+      .hero-funnel__divider {
+        height: calc(100% - 80vh);
+      }
     }
-  }
-    
   }
 </style>
