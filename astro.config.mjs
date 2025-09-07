@@ -29,7 +29,12 @@ export default defineConfig({
   output: "hybrid",
   adapter: env.NETLIFY ? netlify(): vercel(), // vercel() or netlify()
   integrations: [
-    icon(),
+    icon({
+      include: {
+        lucide: ["*"],
+        heroicons: ["*"],
+      },
+    }),
     mdx({}),
     sitemap(),
     tailwind(),
