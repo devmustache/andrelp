@@ -13,6 +13,8 @@ const hasImage = !!hero?.media?.thumbnail?.trim() || false;
 const hasBgImage = !!hero?.media?.background_image?.trim() || false;
 const hasPreviewVideo = !!hero?.media?.video_preview?.trim() || false;
 const hasEmbed = !!hero?.media?.video_id?.trim() || false;
+const hasVideoSrc = !!hero?.media?.video_id?.trim() || false;
+
 const hasMedia = hasImage || hasPreviewVideo;
 ---
 
