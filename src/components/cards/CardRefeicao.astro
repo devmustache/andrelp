@@ -6,120 +6,98 @@ const isMobile =
 ---
 
 <style>
+
 .card-wrapper {
-    width: 260px;
+    width: 260px;        /* ESSENCIAL PARA ALINHAR NO DESKTOP */
     height: 360px;
     perspective: 1400px;
-    flex-shrink: 0;
-}
-
-/* Sombra dinâmica no hover (desktop) */
-@media (hover: hover) and (pointer: fine) {
-  .card-wrapper:hover {
-    transform: translateY(-6px);
+    flex-shrink: 0;      /* IMPEDIR de esticar ou encolher */
+}      
+  /* Sombra dinâmica ao passar o mouse */
+  @media (hover: hover) and (pointer: fine) {
+    .card-wrapper:hover {
+      transform: translateY(-6px);
+    }
   }
-}
 
-.card {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  transform-style: preserve-3d;
-  transition: transform 0.8s cubic-bezier(.03,.58,.48,1);
-}
+  .card {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.8s cubic-bezier(.03,.58,.48,1);
+  }
 
-/* Hover apenas no desktop */
-@media (hover: hover) and (pointer: fine) {
-  .card-wrapper:hover .card {
+  /* HOVER só no desktop */
+  @media (hover: hover) and (pointer: fine) {
+    .card-wrapper:hover .card {
+      transform: rotateY(180deg);
+    }
+  }
+
+  /* Parte da frente e verso */
+  .front,
+  .back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+    background: #fff;
+  }
+
+  /* Frente */
+  .front img {
+    width: 100%;
+    height: 75%;
+    object-fit: cover;
+  }
+
+  .front h2 {
+    text-align: center;
+    padding: 12px;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  /* Verso */
+  .back {
+    background: linear-gradient(135deg, #111, #222);
+    color: #f6f6f6;
     transform: rotateY(180deg);
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
   }
-}
 
-/* Frente e verso */
-.front,
-.back {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  border-radius: 18px;
-  overflow: hidden;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
-  background: #fff;
-}
+  .back h3 {
+    font-size: 1.3rem;
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
 
-/* Frente */
-.front img {
-  width: 100%;
-  height: 75%;
-  object-fit: cover;
-}
-.front h2 {
-  text-align: center;
-  padding: 12px;
-  font-size: 1.25rem;
-  font-weight: 600;
-}
+  .back p {
+    font-size: 0.95rem;
+    line-height: 1.35rem;
+  }
 
-/* Verso */
-.back {
-  background: linear-gradient(135deg, #111, #222);
-  color: #f6f6f6;
-  transform: rotateY(180deg);
-  padding: 22px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 10px;
-}
-.back h3 {
-  font-size: 1.3rem;
-  margin-bottom: 6px;
-  font-weight: 700;
-}
-.back p {
-  font-size: 0.95rem;
-  line-height: 1.35rem;
-}
-
-/* Aviso flutuante mobile */
-.tap-float {
-  position: fixed;
-  bottom: 60px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0,0,0,0.8);
-  color: #fff;
-  padding: 10px 18px;
-  border-radius: 16px;
-  font-size: 0.85rem;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  opacity: 1;
-  transition: opacity 0.5s ease;
-  pointer-events: none;
-}
-
-/* Animação de desaparecimento */
-.tap-float.hide {
-  opacity: 0;
-}
-
-/* Emoji seta animada */
-.tap-float .arrow {
-  animation: bounce 1s infinite;
-}
-
-@keyframes bounce {
-  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-  40% { transform: translateY(-6px); }
-  60% { transform: translateY(-3px); }
-}
+  /* Mensagem no mobile */
+  .tap-info {
+    text-align: center;
+    font-size: 0.80rem;
+    margin-top: 8px;
+    color: #777;
+  }
 </style>
 
-<div class="card-wrapper">
+<div
+  class="card-wrapper"
+  onclick="this.querySelector('.card').classList.toggle('flipped')"
+>
   <div class="card">
     <!-- Frente -->
     <div class="front">
@@ -138,13 +116,11 @@ const isMobile =
 </div>
 
 {isMobile && (
-  <div id="tap-float" class="tap-float">
-    <span class="arrow">⬇️</span> Toque na carta para virar
-  </div>
+  <div class="tap-info">Toque para virar a carta</div>
 )}
 
 <script>
-  // Flip no mobile
+  // Permite clique para girar no mobile
   document.querySelectorAll(".card-wrapper").forEach((wrapper) => {
     wrapper.addEventListener("click", () => {
       const card = wrapper.querySelector(".card");
@@ -152,16 +128,6 @@ const isMobile =
       card.style.transform = card.classList.contains("flipped")
         ? "rotateY(180deg)"
         : "rotateY(0deg)";
-
-      // Esconde o aviso ao tocar
-      const floatTip = document.getElementById("tap-float");
-      if (floatTip) floatTip.classList.add("hide");
     });
   });
-
-  // Remove aviso automaticamente após 4 segundos
-  const floatTip = document.getElementById("tap-float");
-  if (floatTip) {
-    setTimeout(() => floatTip.classList.add("hide"), 4000);
-  }
 </script>
