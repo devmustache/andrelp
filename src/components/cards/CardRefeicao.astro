@@ -1,21 +1,16 @@
 ---
 const { nome, imagem, restaurante } = Astro.props;
-
-// Detecta mobile de verdade (Android/iPhone/iPad)
-const isMobile = /mobile|android|iphone|ipad/i.test(
-  Astro.request.headers.get("user-agent") || ""
-);
 ---
-
 <style>
 .card-wrapper {
   width: 260px;
   height: 360px;
   perspective: 1400px;
   flex-shrink: 0;
+  position: relative;
 }
 
-/* HOVER só no desktop real */
+/* Hover apenas para desktop (quando wrapper NÃO tem .mobile) */
 @media (hover: hover) and (pointer: fine) {
   .card-wrapper:not(.mobile):hover .card {
     transform: rotateY(180deg);
@@ -28,8 +23,12 @@ const isMobile = /mobile|android|iphone|ipad/i.test(
   position: relative;
   transform-style: preserve-3d;
   transition: transform 0.8s cubic-bezier(.03,.58,.48,1);
+  /* ajuda no comportamento de toque */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
+/* Frente e verso */
 .front,
 .back {
   position: absolute;
@@ -48,12 +47,7 @@ const isMobile = /mobile|android|iphone|ipad/i.test(
   object-fit: cover;
 }
 
-.front h2 {
-  text-align: center;
-  padding: 12px;
-  font-size: 1.25rem;
-  font-weight: 600;
-}
+.front h2 { text-align: center; padding: 12px; font-size: 1.25rem; font-weight: 600; }
 
 .back {
   background: linear-gradient(135deg, #111, #222);
@@ -66,28 +60,19 @@ const isMobile = /mobile|android|iphone|ipad/i.test(
   gap: 10px;
 }
 
-.flipped {
-  transform: rotateY(180deg);
-}
+.flipped { transform: rotateY(180deg); }
 
 /* Mensagem no mobile */
-.tap-info {
-  text-align: center;
-  font-size: 0.80rem;
-  margin-top: 8px;
-  color: #777;
-}
+.tap-info { text-align: center; font-size: 0.80rem; margin-top: 8px; color: #777; }
 </style>
 
-<div class={`card-wrapper ${isMobile ? "mobile" : ""}`}>
+<div class="card-wrapper">
   <div class="card">
-    <!-- Frente -->
     <div class="front">
       <img src={imagem} alt={nome} />
       <h2>{nome}</h2>
     </div>
 
-    <!-- Verso -->
     <div class="back">
       <h3>{restaurante.nome}</h3>
       <p>{restaurante.descricao}</p>
@@ -97,16 +82,61 @@ const isMobile = /mobile|android|iphone|ipad/i.test(
   </div>
 </div>
 
-{isMobile && <div class="tap-info">Toque para virar a carta</div>}
+<div class="tap-info" style="display:none">Toque para virar a carta</div>
 
-{isMobile && (
-  <script is:inline>
-    document.addEventListener("DOMContentLoaded", () => {
-      document.querySelectorAll(".card-wrapper.mobile").forEach(wrapper => {
-        wrapper.addEventListener("click", () => {
-          wrapper.querySelector(".card").classList.toggle("flipped");
-        });
+<!-- Script robusto: detecta touch no client e aplica comportamento -->
+<script is:inline>
+  (function () {
+    function isTouchDevice() {
+      return (('ontouchstart' in window) ||
+              (navigator.maxTouchPoints && navigator.maxTouchPoints > 0) ||
+              window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+    }
+
+    function initFlip() {
+      const touch = isTouchDevice();
+      const wrappers = document.querySelectorAll('.card-wrapper');
+      wrappers.forEach(wrapper => {
+        // marca mobile apenas client-side para controlar CSS de hover
+        if (touch) wrapper.classList.add('mobile');
+
+        const card = wrapper.querySelector('.card');
+        if (!card) return;
+
+        // evita anexar múltiplas vezes (idempotente)
+        if (wrapper.__flipAttached) return;
+        wrapper.__flipAttached = true;
+
+        // listener principal: click (covers most)
+        wrapper.addEventListener('click', (e) => {
+          // Se houver um link dentro do card e o usuário tocou nele, deixamos seguir o link
+          const tag = e.target && e.target.closest && e.target.closest('a,button');
+          if (tag) return;
+          card.classList.toggle('flipped');
+        }, { passive: true });
+
+        // extra: touchstart/pointerdown para maior responsividade em alguns browsers
+        wrapper.addEventListener('touchstart', () => {
+          // não forçamos o flip aqui pra evitar conflito com scroll; apenas habilitamos a classe mobile
+        }, { passive: true });
+
+        wrapper.addEventListener('pointerdown', (ev) => {
+          // se for touch pointer, podemos prevenir possíveis conflitos
+          if (ev.pointerType === 'touch') {
+            // nada por ora
+          }
+        }, { passive: true });
       });
-    });
-  </script>
-)}
+
+      // mostra a dica 'Toque para virar' se houver touch
+      const tip = document.querySelector('.tap-info');
+      if (tip) tip.style.display = touch ? 'block' : 'none';
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initFlip);
+    } else {
+      initFlip();
+    }
+  })();
+</script>
