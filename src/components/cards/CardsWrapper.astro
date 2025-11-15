@@ -1,0 +1,29 @@
+---
+// Não precisa de props, ele só organiza o layout
+---
+
+<style>
+  .cards-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;   /* CENTRALIZA no desktop */
+    align-items: flex-start;
+    gap: 24px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  /* Ajusta o espaçamento no mobile */
+  @media (max-width: 500px) {
+    .cards-wrapper {
+      gap: 16px;
+      padding: 12px;
+    }
+  }
+</style>
+
+<div class="cards-wrapper">
+  <slot />
+</div>

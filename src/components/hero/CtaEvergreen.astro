@@ -1,0 +1,112 @@
+---
+export interface Props {
+  minutes?: number;
+  label?: string;
+  subLabel?: string;
+}
+
+const {
+  minutes = 15,
+  label = "Adquira agora por R$197,00",
+  subLabel = "Oferta expira em"
+} = Astro.props;
+---
+
+<div
+  id="cta"
+  data-minutes={minutes}
+  class="relative w-full bg-white flex justify-center items-center py-6"
+>
+  <div class="text-center">
+
+    <!-- Botão CTA -->
+    <button
+      class="px-12 py-4 text-lg font-bold text-white 
+             bg-red-600 hover:bg-red-700
+             rounded-2xl shadow-xl hover:shadow-2xl 
+             transform hover:scale-105 transition-all duration-300 ease-out
+             focus:outline-none focus:ring-4 focus:ring-red-400 active:scale-95"
+    >
+      {label}
+    </button>
+
+    <!-- Contador -->
+    <div id="evergreen-timer" class="mt-3">
+      <span class="font-bold text-red-600 text-xl">
+        {subLabel} <span id="timer"></span>
+      </span>
+    </div>
+
+    <!-- Barra animada -->
+    <div class="w-64 h-2 bg-gray-300 rounded-full mx-auto mt-2 overflow-hidden">
+      <div id="progress-bar" class="h-full transition-all duration-500"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SCRIPT DO TIMER (client-side) -->
+<script is:client>
+  const cta = document.getElementById("cta");
+  const minutes = Number(cta.dataset.minutes);
+  const totalSeconds = minutes * 60;
+  const key = "evergreen-timer";
+
+  function getRemainingTime() {
+    const saved = localStorage.getItem(key);
+
+    if (!saved) {
+      const endTime = Date.now() + totalSeconds * 1000;
+      localStorage.setItem(key, endTime);
+      return totalSeconds;
+    }
+
+    const endTime = Number(saved);
+    const diff = Math.floor((endTime - Date.now()) / 1000);
+
+    if (diff <= 0) {
+      const newEndTime = Date.now() + totalSeconds * 1000;
+      localStorage.setItem(key, newEndTime);
+      return totalSeconds;
+    }
+
+    return diff;
+  }
+
+  function startTimer() {
+    let remaining = getRemainingTime();
+
+    function updateTimer() {
+      let min = String(Math.floor(remaining / 60)).padStart(2, "0");
+      let sec = String(remaining % 60).padStart(2, "0");
+
+      const t = document.getElementById("timer");
+      if (t) t.textContent = `${min}:${sec}`;
+
+      // Barra de progresso + cor dinâmica
+      const pct = (remaining / totalSeconds) * 100;
+      const bar = document.getElementById("progress-bar");
+
+      if (bar) {
+        bar.style.width = pct + "%";
+
+        if (pct > 66) bar.style.backgroundColor = "#16a34a";      // verde
+        else if (pct > 33) bar.style.backgroundColor = "#facc15"; // amarelo
+        else bar.style.backgroundColor = "#dc2626";               // vermelho
+      }
+
+      remaining--;
+
+      if (remaining < 0) {
+        remaining = totalSeconds;
+        const newEndTime = Date.now() + remaining * 1000;
+        localStorage.setItem(key, newEndTime);
+      }
+    }
+
+    updateTimer();
+    setInterval(updateTimer, 1000);
+  }
+
+  startTimer();
+</script>

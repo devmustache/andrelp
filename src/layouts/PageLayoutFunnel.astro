@@ -2,10 +2,34 @@
 import Block from "@components/block/Block.astro";
 import BaseLayout from "./BaseLayout.astro";
 import HeroFunnel from "@components/hero/HeroFunnel.astro";
+import CtaEvergreen from "@components/hero/CtaEvergreen.astro";
+import CardRefeicao from "@components/cards/CardRefeicao.astro";
+import CardsWrapper from "@components/cards/CardsWrapper.astro";
 
 const props = Astro.props;
 const { title, description, blocks, style, thumbnail, og_image } = Astro.props;
-
+const refeicoes = [
+  {
+    nome: "Hambúrguer Artesanal",
+    imagem: "/src/assets/hamburger.jpg",
+    restaurante: {
+      nome: "Burger House",
+      descricao: "Hambúrgueres premium feitos na brasa.",
+      endereco: "Rua Central, 123",
+      telefone: "(11) 90000-0000"
+    }
+  },
+  {
+    nome: "Sushi Bar",
+    imagem: "/src/assets/sushi.jpg",
+    restaurante: {
+      nome: "Tokyo Place",
+      descricao: "Sushi fresco e pratos japoneses tradicionais.",
+      endereco: "Av. Japão, 456",
+      telefone: "(11) 98888-0000"
+    }
+  }
+];
 const hasBlocks = blocks && blocks.length > 0;
 ---
 
@@ -14,13 +38,17 @@ const hasBlocks = blocks && blocks.length > 0;
     <slot name="hero" />
   </HeroFunnel>
 
-  <div class="relative w-full" id="more">
-    <div
-      class=`page__content container-${style.container || 'md'} ${style.content_class || "py-14"} `
-    >
-      <slot />
-      {!hasBlocks && <slot name="nav" />}
-    </div>
+    <CtaEvergreen 
+      minutes={15}
+      label="Garantir minha vaga por R$197"
+      subLabel="Esta oferta expira em"
+    />
+
+    <CardsWrapper>
+          {refeicoes.map(r => (
+            <CardRefeicao {...r} />
+          ))}
+    </CardsWrapper>
 
     {
       hasBlocks && (
