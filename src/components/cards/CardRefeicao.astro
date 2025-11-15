@@ -1,6 +1,10 @@
 ---
 const { nome, imagem, restaurante } = Astro.props;
-const isMobile = /mobile/i.test(Astro.request.headers.get("user-agent") || "");
+
+// Detecta mobile de verdade (Android/iPhone/iPad)
+const isMobile = /mobile|android|iphone|ipad/i.test(
+  Astro.request.headers.get("user-agent") || ""
+);
 ---
 
 <style>
@@ -11,9 +15,9 @@ const isMobile = /mobile/i.test(Astro.request.headers.get("user-agent") || "");
   flex-shrink: 0;
 }
 
-/* HOVER só no desktop */
+/* HOVER só no desktop real */
 @media (hover: hover) and (pointer: fine) {
-  .card-wrapper:hover .card {
+  .card-wrapper:not(.mobile):hover .card {
     transform: rotateY(180deg);
   }
 }
@@ -26,7 +30,6 @@ const isMobile = /mobile/i.test(Astro.request.headers.get("user-agent") || "");
   transition: transform 0.8s cubic-bezier(.03,.58,.48,1);
 }
 
-/* Frente e verso */
 .front,
 .back {
   position: absolute;
@@ -39,7 +42,6 @@ const isMobile = /mobile/i.test(Astro.request.headers.get("user-agent") || "");
   background: #fff;
 }
 
-/* Frente */
 .front img {
   width: 100%;
   height: 75%;
@@ -53,7 +55,6 @@ const isMobile = /mobile/i.test(Astro.request.headers.get("user-agent") || "");
   font-weight: 600;
 }
 
-/* Verso */
 .back {
   background: linear-gradient(135deg, #111, #222);
   color: #f6f6f6;
@@ -65,18 +66,6 @@ const isMobile = /mobile/i.test(Astro.request.headers.get("user-agent") || "");
   gap: 10px;
 }
 
-.back h3 {
-  font-size: 1.3rem;
-  margin-bottom: 6px;
-  font-weight: 700;
-}
-
-.back p {
-  font-size: 0.95rem;
-  line-height: 1.35rem;
-}
-
-/* Classe para flip via JS */
 .flipped {
   transform: rotateY(180deg);
 }
@@ -90,7 +79,7 @@ const isMobile = /mobile/i.test(Astro.request.headers.get("user-agent") || "");
 }
 </style>
 
-<div class="card-wrapper">
+<div class={`card-wrapper ${isMobile ? "mobile" : ""}`}>
   <div class="card">
     <!-- Frente -->
     <div class="front">
@@ -113,10 +102,9 @@ const isMobile = /mobile/i.test(Astro.request.headers.get("user-agent") || "");
 {isMobile && (
   <script is:inline>
     document.addEventListener("DOMContentLoaded", () => {
-      document.querySelectorAll(".card-wrapper").forEach(wrapper => {
+      document.querySelectorAll(".card-wrapper.mobile").forEach(wrapper => {
         wrapper.addEventListener("click", () => {
-          const card = wrapper.querySelector(".card");
-          card.classList.toggle("flipped");
+          wrapper.querySelector(".card").classList.toggle("flipped");
         });
       });
     });
