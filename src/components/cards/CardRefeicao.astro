@@ -1,103 +1,96 @@
 ---
 const { nome, imagem, restaurante } = Astro.props;
-
-const isMobile =
-  Astro.request.headers.get("user-agent")?.match(/mobile/i) ? true : false;
+const isMobile = /mobile/i.test(Astro.request.headers.get("user-agent") || "");
 ---
 
 <style>
-
 .card-wrapper {
-    width: 260px;        /* ESSENCIAL PARA ALINHAR NO DESKTOP */
-    height: 360px;
-    perspective: 1400px;
-    flex-shrink: 0;      /* IMPEDIR de esticar ou encolher */
-}      
-  /* Sombra dinâmica ao passar o mouse */
-  @media (hover: hover) and (pointer: fine) {
-    .card-wrapper:hover {
-      transform: translateY(-6px);
-    }
-  }
+  width: 260px;
+  height: 360px;
+  perspective: 1400px;
+  flex-shrink: 0;
+}
 
-  .card {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    transform-style: preserve-3d;
-    transition: transform 0.8s cubic-bezier(.03,.58,.48,1);
-  }
-
-  /* HOVER só no desktop */
-  @media (hover: hover) and (pointer: fine) {
-    .card-wrapper:hover .card {
-      transform: rotateY(180deg);
-    }
-  }
-
-  /* Parte da frente e verso */
-  .front,
-  .back {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
-    border-radius: 18px;
-    overflow: hidden;
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
-    background: #fff;
-  }
-
-  /* Frente */
-  .front img {
-    width: 100%;
-    height: 75%;
-    object-fit: cover;
-  }
-
-  .front h2 {
-    text-align: center;
-    padding: 12px;
-    font-size: 1.25rem;
-    font-weight: 600;
-  }
-
-  /* Verso */
-  .back {
-    background: linear-gradient(135deg, #111, #222);
-    color: #f6f6f6;
+/* HOVER só no desktop */
+@media (hover: hover) and (pointer: fine) {
+  .card-wrapper:hover .card {
     transform: rotateY(180deg);
-    padding: 22px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 10px;
   }
+}
 
-  .back h3 {
-    font-size: 1.3rem;
-    margin-bottom: 6px;
-    font-weight: 700;
-  }
+.card {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(.03,.58,.48,1);
+}
 
-  .back p {
-    font-size: 0.95rem;
-    line-height: 1.35rem;
-  }
+/* Frente e verso */
+.front,
+.back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+  background: #fff;
+}
 
-  /* Mensagem no mobile */
-  .tap-info {
-    text-align: center;
-    font-size: 0.80rem;
-    margin-top: 8px;
-    color: #777;
-  }
+/* Frente */
+.front img {
+  width: 100%;
+  height: 75%;
+  object-fit: cover;
+}
+
+.front h2 {
+  text-align: center;
+  padding: 12px;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+/* Verso */
+.back {
+  background: linear-gradient(135deg, #111, #222);
+  color: #f6f6f6;
+  transform: rotateY(180deg);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+}
+
+.back h3 {
+  font-size: 1.3rem;
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+
+.back p {
+  font-size: 0.95rem;
+  line-height: 1.35rem;
+}
+
+/* Classe para flip via JS */
+.flipped {
+  transform: rotateY(180deg);
+}
+
+/* Mensagem no mobile */
+.tap-info {
+  text-align: center;
+  font-size: 0.80rem;
+  margin-top: 8px;
+  color: #777;
+}
 </style>
 
-<div
-  class="card-wrapper"
-  onclick="this.querySelector('.card').classList.toggle('flipped')"
->
+<div class="card-wrapper">
   <div class="card">
     <!-- Frente -->
     <div class="front">
@@ -115,19 +108,17 @@ const isMobile =
   </div>
 </div>
 
-{isMobile && (
-  <div class="tap-info">Toque para virar a carta</div>
-)}
+{isMobile && <div class="tap-info">Toque para virar a carta</div>}
 
-<script>
-  // Permite clique para girar no mobile
-  document.querySelectorAll(".card-wrapper").forEach((wrapper) => {
-    wrapper.addEventListener("click", () => {
-      const card = wrapper.querySelector(".card");
-      card.classList.toggle("flipped");
-      card.style.transform = card.classList.contains("flipped")
-        ? "rotateY(180deg)"
-        : "rotateY(0deg)";
+{isMobile && (
+  <script is:inline>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll(".card-wrapper").forEach(wrapper => {
+        wrapper.addEventListener("click", () => {
+          const card = wrapper.querySelector(".card");
+          card.classList.toggle("flipped");
+        });
+      });
     });
-  });
-</script>
+  </script>
+)}
