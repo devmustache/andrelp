@@ -1,5 +1,6 @@
 ---
 import { getImage } from "astro:assets";
+
 let {
   src,
   aspect,
@@ -10,20 +11,28 @@ let {
   height = 640,
   loading = "lazy",
   widths = [
-    240, 320, 400, 450, 480, 580, 640, 750, 828, 940, 990,1080, 1200, 1450, 1920,
+    240, 320, 400, 450, 480, 580, 640, 750, 828, 940, 990, 1080, 1200, 1450, 1920,
   ],
   artDirectives = [],
   layout = "fill",
+  mobileSize = null, // 🔥 suporte para tamanho mobile
 } = Astro.props;
+
+// 🔥 aplica mobileSize apenas no mobile
+if (mobileSize) {
+  sizes = `(max-width: 767px) ${mobileSize}, ${sizes}`;
+}
 
 const allImages = import.meta.glob("/src/assets/*.{jpeg,jpg,png,gif}");
 const imgObj = (await allImages[src]()).default;
+
 if (aspect) height = Math.round(width / aspect);
+
 const image = await getImage({
   src: imgObj,
-  width: width,
-  height: height,
-  aspect: aspect,
+  width,
+  height,
+  aspect,
   format: imgObj.format,
 });
 
@@ -31,7 +40,7 @@ const formats = ["webp"];
 
 const sources = await Promise.all(
   formats.map(async (format) => {
-    const image = await getImage({
+    const img = await getImage({
       src: imgObj,
       format,
       width,
@@ -40,30 +49,20 @@ const sources = await Promise.all(
       sizes,
       aspect,
     });
+
     return {
       format,
-      srcset: image.srcSet.attribute,
+      srcset: img.srcSet.attribute,
     };
   }),
 );
 
-function imgClass() {
-  if (layout === "fill") {
-    return "w-full h-full object-cover";
-  }
-  if (layout === "fullWidth") {
-    return "w-full h-auto object-cover";
-  }
-  if (layout === "contain") {
-    return "w-full h-full object-contain";
-  }
-}
-
+// art direction
 const artdirection = await Promise.all(
-  artDirectives.map(async (directive) => {
-    return await Promise.all(
+  artDirectives.map(async (directive) =>
+    Promise.all(
       formats.map(async (format) => {
-        const image = await getImage({
+        const img = await getImage({
           src: imgObj,
           format,
           width,
@@ -74,13 +73,19 @@ const artdirection = await Promise.all(
 
         return {
           format,
-          srcset: image.srcSet.attribute,
+          srcset: img.srcSet.attribute,
           media: directive.media,
         };
       }),
-    );
-  }),
+    ),
+  ),
 );
+
+function imgClass() {
+  if (layout === "fill") return "w-full h-full object-cover";
+  if (layout === "fullWidth") return "w-full h-auto object-cover";
+  if (layout === "contain") return "w-full h-full object-contain";
+}
 ---
 
 <picture {...attributes?.picture}>
@@ -98,6 +103,7 @@ const artdirection = await Promise.all(
       </>
     ))
   }
+
   {
     sources.map((source) => (
       <source
@@ -112,10 +118,10 @@ const artdirection = await Promise.all(
     src={image.src}
     alt={alt}
     class={imgClass()}
-    {sizes}
-    {width}
-    {height}
-    {loading}
+    sizes={sizes}
+    width={width}
+    height={height}
+    loading={loading}
     {...attributes?.img}
   />
 </picture>

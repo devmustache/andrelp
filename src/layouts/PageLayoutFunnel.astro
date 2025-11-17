@@ -43,12 +43,13 @@ const hasBlocks = blocks && blocks.length > 0;
       label="Garantir minha vaga por R$197"
       subLabel="Esta oferta expira em"
     />
-
     <CardsWrapper>
           {refeicoes.map(r => (
             <CardRefeicao {...r} />
           ))}
+
     </CardsWrapper>
+
 
     {
       hasBlocks && (

@@ -3,10 +3,13 @@ import Picture from "@components/media/Picture.astro";
 const { slot, ...props } = Astro.props;
 import Intersecting from "@components/common/Intersecting.vue";
 import { t } from "@util/translate";
+
+// Pega o nome e extensão do arquivo
 const imageName = props.src.split("/").pop().split(".")[0];
 const imgAlt = imageName ? imageName : "no-name";
 const ext = props.src.split(".").pop();
 
+// Detecta se é SVG
 function isPixelBasedImage(extension) {
   const pixelBasedFormats = [
     "jpg",
@@ -18,14 +21,17 @@ function isPixelBasedImage(extension) {
     "webp",
     "ico",
   ];
-
   return pixelBasedFormats.includes(extension.toLowerCase());
 }
 const isSvg = !isPixelBasedImage(ext);
 
-//
+// 🟢 Aqui pegamos o image_size vindo do MDX
+// Se image_size existir, usamos ele como width.
+// Se não existir, NÃO forçamos width (o Picture se vira sozinho).
+const dynamicWidth = props.media?.image_size
+  ? Number(props.media.image_size)
+  : undefined;
 ---
-
 {
   !isSvg && (
     <Intersecting client:visible>
@@ -38,10 +44,11 @@ const isSvg = !isPixelBasedImage(ext);
         <Picture
           {...props}
           alt={imgAlt}
-          width={768}
+          width={dynamicWidth}
         />
       </a>
     </Intersecting>
   )
 }
-{isSvg && <img {...props} alt={imgAlt} />}
+
+{isSvg && <img {...props} alt={imgAlt} class="w-full h-auto" />}

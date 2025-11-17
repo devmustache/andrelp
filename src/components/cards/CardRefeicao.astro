@@ -64,6 +64,8 @@ const { nome, imagem, restaurante } = Astro.props;
 
 /* Mensagem no mobile */
 .tap-info { text-align: center; font-size: 0.80rem; margin-top: 8px; color: #777; }
+
+
 </style>
 
 <div class="card-wrapper">
@@ -84,6 +86,7 @@ const { nome, imagem, restaurante } = Astro.props;
 
 <div class="tap-info" style="display:none">Toque para virar a carta</div>
 
+
 <!-- Script robusto: detecta touch no client e aplica comportamento -->
 <script is:inline>
   (function () {
@@ -103,32 +106,18 @@ const { nome, imagem, restaurante } = Astro.props;
         const card = wrapper.querySelector('.card');
         if (!card) return;
 
-        // evita anexar múltiplas vezes (idempotente)
+        // evita anexar múltiplas vezes
         if (wrapper.__flipAttached) return;
         wrapper.__flipAttached = true;
 
-        // listener principal: click (covers most)
+        // click para virar
         wrapper.addEventListener('click', (e) => {
-          // Se houver um link dentro do card e o usuário tocou nele, deixamos seguir o link
           const tag = e.target && e.target.closest && e.target.closest('a,button');
           if (tag) return;
           card.classList.toggle('flipped');
         }, { passive: true });
-
-        // extra: touchstart/pointerdown para maior responsividade em alguns browsers
-        wrapper.addEventListener('touchstart', () => {
-          // não forçamos o flip aqui pra evitar conflito com scroll; apenas habilitamos a classe mobile
-        }, { passive: true });
-
-        wrapper.addEventListener('pointerdown', (ev) => {
-          // se for touch pointer, podemos prevenir possíveis conflitos
-          if (ev.pointerType === 'touch') {
-            // nada por ora
-          }
-        }, { passive: true });
       });
 
-      // mostra a dica 'Toque para virar' se houver touch
       const tip = document.querySelector('.tap-info');
       if (tip) tip.style.display = touch ? 'block' : 'none';
     }

@@ -1,12 +1,11 @@
 ---
-// Não precisa de props, ele só organiza o layout
 ---
 
 <style>
   .cards-wrapper {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;   /* CENTRALIZA no desktop */
+    justify-content: center;
     align-items: flex-start;
     gap: 24px;
     width: 100%;
@@ -15,15 +14,62 @@
     box-sizing: border-box;
   }
 
-  /* Ajusta o espaçamento no mobile */
   @media (max-width: 500px) {
     .cards-wrapper {
       gap: 16px;
       padding: 12px;
     }
   }
+
+  .impact-box {
+    margin: 40px auto 0;
+    padding: 6px 22px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #ffe9ae, #ffd66b);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    text-align: center;
+    max-width: 700px;
+    border: 1px solid rgba(0,0,0,0.05);
+
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 48px;
+  }
+
+  .impact-box p {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.35;
+    font-weight: 700;
+    color: #2d2d2d;
+  }
+
+  @media (max-width: 480px) {
+    .impact-box {
+      padding: 14px 16px;
+      min-height: 40px;
+    }
+
+    .impact-box p {
+      font-size: 0.65rem;
+      line-height: 1.3;
+    }
+  }
 </style>
 
-<div class="cards-wrapper">
-  <slot />
+<div>
+  <!-- WRAPPER DOS CARDS -->
+  <div class="cards-wrapper">
+    <slot />
+  </div>
+
+  <!-- FRASE DE IMPACTO → agora funciona -->
+  <div class="impact-box">
+    <p>
+      Se essas comidas chamam sua atenção, imagine seus clientes pedindo ainda mais.
+      Por 3× de R$65, seu delivery sobe de nível.
+    </p>
+  </div>
 </div>
