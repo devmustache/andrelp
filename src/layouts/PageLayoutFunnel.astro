@@ -40,7 +40,7 @@ const hasBlocks = blocks && blocks.length > 0;
 
     <CtaEvergreen 
       minutes={15}
-      label="Garantir minha vaga por R$197"
+      label="Dominando o Delivery de <del>R$397,00</del> por <strong>R$197,00</strong>"
       subLabel="Esta oferta expira em"
     />
     <CardsWrapper>
@@ -51,19 +51,27 @@ const hasBlocks = blocks && blocks.length > 0;
     </CardsWrapper>
 
 
-    {
-      hasBlocks && (
-        <>
-          <div class={style.block_class}>
-            {blocks.map((section) => (
-              <Block {...section} />
-            ))}
-          </div>
-
-          <slot name="nav" />
-        </>
-      )
-    }
+        {hasBlocks && (
+          <>
+            <div class={style.block_class}>
+              {(() => {
+                console.log("ALL BLOCKS BEFORE MAP:", blocks);
+                return blocks.map((section, i) => {
+                  console.log("MAPPING SECTION", i, section);
+                  return (
+                    <Block
+                      key={i}
+                      {...section}
+                      checklist={section.checklist}
+                      cta={section.cta}
+                    />
+                  );
+                });
+              })()}
+            </div>
+            <slot name="nav" />
+          </>
+        )}
   </div>
 </BaseLayout>
 

@@ -8,6 +8,7 @@ import Features from "./Features.astro";
 import AnnoyingPopup from "./AnnoyingPopup.astro";
 import PricingTable from "./PricingTable.astro";
 import Faqs from "./Faqs.astro";
+import ChecklistCurso from "@components/cards/ChecklistCurso.astro";
 
 const { slot, ...props } = Astro.props;
 ---
@@ -25,7 +26,9 @@ const { slot, ...props } = Astro.props;
       {props.component === "RecentItems" && <RecentItems {...props} />}
       {props.component === "RichText" && <RichText {...props} />}
       {props.component === "Features" && <Features {...props} />}
-      {props.component === "PricingTable" && <PricingTable {...props} />}
+      {props.component === "CursoChecklist" && (
+        <ChecklistCurso checklist={props.checklist} cta={props.cta} style={props.style} />
+      )}
       {props.component === "Faq" && <Faqs {...props} />}
     </Intersecting>
   )

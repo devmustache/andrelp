@@ -2,10 +2,10 @@
 import Picture from "@components/media/Picture.astro";
 import { marked } from "marked";
 import { Icon } from "astro-icon/components";
-import Button from "@components/navigation/Button.astro";
 import VideoInline from "@components/media/VideoInline.vue";
 import VideoDialog from "@components/dialog/VideoDialog.vue";
 import VideoDialogBtn from "@components/media/VideoDialogBtn.vue";
+import ButtonLarge from "@components/navigation/ButtonLarge.astro";
 
 const { title, hero } = Astro.props;
 const { slug } = Astro.params;
@@ -104,9 +104,9 @@ const hasMedia = hasImage || hasPreviewVideo;
             )}
 
             {hero.buttons && hero.buttons.length > 0 && (
-              <div class="hero-funnel__buttons  mt-2 flex flex-wrap gap-4">
+              <div class="hero-funnel__buttons  mt-2 flex flex-wrap gap-4 ">
                 {hero.buttons.map((btn) => (
-                  <Button {...btn} />
+                  <ButtonLarge {...btn} />
                 ))}
               </div>
             )}
