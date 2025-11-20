@@ -10,23 +10,23 @@ const props = Astro.props;
 const { title, description, blocks, style, thumbnail, og_image } = Astro.props;
 const refeicoes = [
   {
-    nome: "Hambúrguer Artesanal",
-    imagem: "/images/hamburger.jpg",
+    nome: "Bistrôgonofe",
+    imagem: "/images/bistro.jpg",
     restaurante: {
-      nome: "Burger House",
-      descricao: "Hambúrgueres premium feitos na brasa.",
-      endereco: "Rua Central, 123",
-      telefone: "(11) 90000-0000"
+      nome: "Bistrôgonofe",
+      descricao: "O bistrô vende hoje por dia mais de x pratos",
+      rating: "⭐⭐⭐⭐⭐",
+      resultado: "Foi um sucesso"
     }
   },
   {
-    nome: "Sushi Bar",
-    imagem: "/images/sushi.jpg",
+    nome: "Açai na garrafinha",
+    imagem: "/images/acainagarrafa.jpg",
     restaurante: {
-      nome: "Tokyo Place",
-      descricao: "Sushi fresco e pratos japoneses tradicionais.",
-      endereco: "Av. Japão, 456",
-      telefone: "(11) 98888-0000"
+      nome: "Açai na garrafinha",
+      descricao: "Açai direto para a sua casa, entrega rápida e eficiente",
+      rating: "⭐⭐⭐⭐",
+      resultado: "Foi um sucesso"
     }
   }
 ];
@@ -51,27 +51,23 @@ const hasBlocks = blocks && blocks.length > 0;
     </CardsWrapper>
 
 
-        {hasBlocks && (
-          <>
-            <div class={style.block_class}>
-              {(() => {
-                console.log("ALL BLOCKS BEFORE MAP:", blocks);
-                return blocks.map((section, i) => {
-                  console.log("MAPPING SECTION", i, section);
-                  return (
-                    <Block
-                      key={i}
-                      {...section}
-                      checklist={section.checklist}
-                      cta={section.cta}
-                    />
-                  );
-                });
-              })()}
-            </div>
-            <slot name="nav" />
-          </>
-        )}
+    {
+      hasBlocks && (
+        <>
+          <div class={style.block_class}>
+            {blocks.map((section) => (
+              <Block
+                {...section}
+                checklist={section.checklist}
+                cta={section.cta}
+              />          
+            ))}
+          </div>
+
+          <slot name="nav" />
+        </>
+      )
+    }
   </div>
 </BaseLayout>
 
