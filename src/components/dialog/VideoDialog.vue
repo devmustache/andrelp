@@ -56,6 +56,7 @@ const loading = ref(false);
 let Plyr;
 
 onMounted(async () => {});
+
 const pauseVideo = () => {
   showVideo.set({
     id: $show.value.id,
@@ -67,7 +68,9 @@ const pauseVideo = () => {
 const playVideo = async () => {
   /* allowCookie.value = checkCookie(); */
   if (!Plyr) Plyr = (await import("plyr")).default;
+
   if (!videoPlayer.value) {
+    // 1. Criação do player (ocorre na primeira vez)
     loading.value = true;
     videoPlayer.value = new Plyr(container.value, {
       playsinline: 0,
@@ -93,18 +96,32 @@ const playVideo = async () => {
       },
     });
 
+    // 2. Tenta dar o play APENAS quando o Plyr estiver pronto.
+    // O navegador móvel pode bloquear este autoplay, mas o player estará inicializado.
     videoPlayer.value.on("ready", function (event) {
-      videoPlayer.value.play();
+      videoPlayer.value.play().catch(error => {
+         console.warn("Autoplay bloqueado pelo navegador na primeira tentativa.", error);
+         loading.value = false;
+      });
+      // A flag de loading será setada para false aqui ou em 'loadeddata'
+    });
+
+    // Adiciona listener para garantir que o loading é desativado quando dados são carregados
+    videoPlayer.value.on("loadeddata", function () {
       loading.value = false;
     });
+
   } else {
-    videoPlayer.value.play();
+    // 3. Tenta dar o play quando o player JÁ EXISTE (ocorre na segunda vez)
+    // Isso tem maior chance de sucesso em móvel, pois o player já está injetado.
+    videoPlayer.value.play().catch(error => {
+      console.warn("Erro ao tentar tocar novamente. Bloqueio de mídia?", error);
+    });
   }
 };
 
 watch(
   $show,
-
   (val) => {
     if (val.show && val.id === props.video_id) {
       playVideo();
