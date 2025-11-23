@@ -8,12 +8,9 @@
       <div @click.stop class="container-md relative">
         <div class="overflow-hidden rounded shadow-xl relative">
 
-          <!-- Loading overlay só no mobile -->
-          <div
-            v-if="loading && isMobile"
-            class="absolute inset-0 z-20 flex items-center justify-center bg-black/50 text-white text-lg font-bold"
-          >
-            Carregando...
+          <!-- Spinner loading só no mobile -->
+          <div v-if="loading && isMobile" class="absolute inset-0 z-20 flex items-center justify-center bg-black/30">
+            <div class="spinner"></div>
           </div>
 
           <div
@@ -54,8 +51,15 @@ const videoPlayer = ref(null);
 const loading = ref(false);
 let Plyr;
 
-// Detecta mobile (iOS ou Android)
+// Detecta mobile
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+// Função para abrir modal e tocar vídeo (chamada pelo clique do usuário)
+export const openVideo = async () => {
+  showVideo.set({ id: props.video_id, show: true });
+  disableBodyScroll(document.body);
+  await playVideo();
+};
 
 const pauseVideo = () => {
   showVideo.set({ id: $show.value.id, show: false });
@@ -68,6 +72,8 @@ const pauseVideo = () => {
   } else if (videoPlayer.value) {
     videoPlayer.value.pause();
   }
+
+  enableBodyScroll(document.body);
 };
 
 const playVideo = async () => {
@@ -77,7 +83,7 @@ const playVideo = async () => {
     if (isMobile) loading.value = true;
 
     videoPlayer.value = new Plyr(container.value, {
-      playsinline: isMobile ? true : 0, // inline só no mobile
+      playsinline: isMobile ? true : 0,
       settings: ["loop"],
       iconUrl: "/icons/plyr.svg",
       controls: [
@@ -101,7 +107,7 @@ const playVideo = async () => {
     });
 
     if (isMobile) {
-      // Garante autoplay no mobile
+      // Garante autoplay no mobile dentro da interação do usuário
       videoPlayer.value.on("canplay", () => {
         videoPlayer.value.play().catch(() => {});
         loading.value = false;
@@ -117,13 +123,10 @@ const playVideo = async () => {
   }
 };
 
+// Watcher para fechar modal via store
 watch(
   $show,
   (val) => {
-    if (val.show && val.id === props.video_id) {
-      playVideo();
-      disableBodyScroll(document.body);
-    }
     if (!val.show && val.id === props.video_id) {
       enableBodyScroll(document.body);
     }
@@ -135,5 +138,18 @@ watch(
 <style>
 .z-1000 {
   z-index: 100;
+}
+
+/* Spinner animado */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.spinner {
+  border: 4px solid white;
+  border-top-color: transparent;
+  border-radius: 50%;
+  width: 3rem;
+  height: 3rem;
+  animation: spin 1s linear infinite;
 }
 </style>
