@@ -53,9 +53,9 @@ const showNewsletter = !!import.meta.env.NEWSLETTER_PROVIDER || "mailchimp";
   </div>
   <div class="container-xl mb-4 flex items-end justify-between gap-4">
     <div class="grid grid-cols-1 gap-4">
-      <a rel="noopener noreferrer" href="#" aria-label={t("back_to_home")}>
-        <Icon name="logo-footer" class="h-6" />
-      </a>
+        <a href="/" aria-label="Dominando Delivery" class="flex items-center">
+            <img src="/src/icons/logo.png" alt="Logo" class="w-32 h-auto sm:w-16 lg:w-32"  />
+        </a>      
 
       {
         about.data.footer_text && (

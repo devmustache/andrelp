@@ -6,6 +6,7 @@ import Button from "@components/navigation/Button.astro";
 import VideoInline from "@components/media/VideoInline.vue";
 import VideoDialog from "@components/dialog/VideoDialog.vue";
 import VideoDialogBtn from "@components/media/VideoDialogBtn.vue";
+import CTAExtravagante from "@components/hero/CTAExtravagante.astro";
 
 const { media, style, content, buttons } = Astro.props;
 
@@ -223,6 +224,7 @@ const hasEmbed = !!media?.video_id?.trim() || false;
         </>
       )
     }
+    
   </div>
 
   <div class="text-image__content z-20 my-auto flex h-full flex-1">
@@ -239,14 +241,16 @@ const hasEmbed = !!media?.video_id?.trim() || false;
             style="--animation-delay: 0.6s"
             class={`fade-up inline-flex flex-wrap gap-4 ${
               style.template === "banner"
-                ? "mb-8 w-full justify-center py-0"
-                : "py-8"
+                ? "mb-8 w-full justify-center py-20"
+                : "py-20"
             }`}
           >
             {buttons.map((btn) => (
               <Button {...btn} />
             ))}
           </div>
+         <CTAExtravagante ctaMessage="GARANTIR MINHA VAGA AGORA" />
+
         )
       }
 
@@ -264,8 +268,10 @@ const hasEmbed = !!media?.video_id?.trim() || false;
           </VideoDialogBtn>
         )
       }
+
     </div>
   </div>
+  
 </div>
 
 {

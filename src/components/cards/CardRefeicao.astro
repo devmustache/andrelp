@@ -10,7 +10,6 @@ const { nome, imagem, restaurante } = Astro.props;
   position: relative;
 }
 
-/* Hover apenas para desktop (quando wrapper NÃO tem .mobile) */
 @media (hover: hover) and (pointer: fine) {
   .card-wrapper:not(.mobile):hover .card {
     transform: rotateY(180deg);
@@ -23,12 +22,10 @@ const { nome, imagem, restaurante } = Astro.props;
   position: relative;
   transform-style: preserve-3d;
   transition: transform 0.8s cubic-bezier(.03,.58,.48,1);
-  /* ajuda no comportamento de toque */
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Frente e verso */
 .front,
 .back {
   position: absolute;
@@ -62,10 +59,12 @@ const { nome, imagem, restaurante } = Astro.props;
 
 .flipped { transform: rotateY(180deg); }
 
-/* Mensagem no mobile */
-.tap-info { text-align: center; font-size: 0.80rem; margin-top: 8px; color: #777; }
-
-
+.tap-info {
+  text-align: center;
+  font-size: 0.80rem;
+  margin-top: 8px;
+  color: #777;
+}
 </style>
 
 <div class="card-wrapper">
@@ -85,36 +84,61 @@ const { nome, imagem, restaurante } = Astro.props;
 
 <div class="tap-info" style="display:none">Toque para virar a carta</div>
 
-
-<!-- Script robusto: detecta touch no client e aplica comportamento -->
 <script is:inline>
   (function () {
     function isTouchDevice() {
-      return (('ontouchstart' in window) ||
-              (navigator.maxTouchPoints && navigator.maxTouchPoints > 0) ||
-              window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+      return (
+        ('ontouchstart' in window) ||
+        (navigator.maxTouchPoints && navigator.maxTouchPoints > 0) ||
+        (window.matchMedia && window.matchMedia('(pointer: coarse)').matches)
+      );
     }
 
     function initFlip() {
       const touch = isTouchDevice();
       const wrappers = document.querySelectorAll('.card-wrapper');
-      wrappers.forEach(wrapper => {
-        // marca mobile apenas client-side para controlar CSS de hover
+
+      wrappers.forEach((wrapper, index) => {
         if (touch) wrapper.classList.add('mobile');
 
         const card = wrapper.querySelector('.card');
         if (!card) return;
 
-        // evita anexar múltiplas vezes
         if (wrapper.__flipAttached) return;
         wrapper.__flipAttached = true;
 
-        // click para virar
+        // click manual
         wrapper.addEventListener('click', (e) => {
           const tag = e.target && e.target.closest && e.target.closest('a,button');
           if (tag) return;
           card.classList.toggle('flipped');
         }, { passive: true });
+
+        // -----------------------------------------
+        // 🔥 OBSERVER — flip automático só no 1º card
+        // -----------------------------------------
+        if (index === 0) {
+          const observer = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting && entry.intersectionRatio === 1) {
+                  // vira
+                  card.classList.add('flipped');
+
+                  setTimeout(() => {
+                    // volta
+                    card.classList.remove('flipped');
+                  }, 1200);
+
+                  observer.disconnect(); // garantir que roda só uma vez
+                }
+              });
+            },
+            { threshold: 1 } // precisa estar 100% visível
+          );
+
+          observer.observe(wrapper);
+        }
       });
 
       const tip = document.querySelector('.tap-info');

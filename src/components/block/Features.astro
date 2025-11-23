@@ -2,6 +2,7 @@
 import { marked } from "marked";
 import { Icon } from "astro-icon/components";
 import { getIconName } from "@util/helpers";
+import CTAExtravagante from "@components/hero/CTAExtravagante.astro";
 const { content, features, style } = Astro.props;
 ---
 
@@ -43,6 +44,8 @@ const { content, features, style } = Astro.props;
       </ul>
     )
   }
+
+  <CTAExtravagante show={true} ctaMessage="Aproveite todo esse conteúdo por R$197,00"></CTAExtravagante>
 </div>
 
 <style>

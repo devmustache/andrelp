@@ -1,0 +1,105 @@
+---
+export interface Props {
+  ctaMessage?: string;
+  show?: boolean; // trava de renderização
+}
+
+const {
+  ctaMessage = "GARANTA AGORA — OFERTA IMPERDÍVEL!",
+  show = false,
+} = Astro.props;
+
+// 🚫 Se show = false, componente não aparece
+if (!show) {
+  // Não renderiza nada, mas sem retornar null
+  // Basta não emitir markup
+  // Só coloca um comentário vazio
+}
+---
+
+<style>
+  .gold-cta {
+    background: linear-gradient(135deg, #FFD700, #FFEA00, #FFC800);
+    color: #7A4F00;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    padding: 1rem 2.5rem;
+    border-radius: 18px;
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+      0 0 15px rgba(255, 215, 0, 0.8),
+      0 0 30px rgba(255, 210, 0, 0.6),
+      0 0 45px rgba(255, 200, 0, 0.4);
+    transition: transform 0.2s ease-out, box-shadow 0.3s ease-out;
+    animation: goldPulse 2.5s infinite ease-in-out;
+  }
+
+  /* Brilho animado */
+  .gold-cta::before {
+    content: "";
+    position: absolute;
+    top: -120%;
+    left: -50%;
+    width: 200%;
+    height: 350%;
+    background: linear-gradient(
+      120deg,
+      rgba(255, 255, 255, 0) 40%,
+      rgba(255, 255, 255, 0.7) 50%,
+      rgba(255, 255, 255, 0) 60%
+    );
+    transform: rotate(25deg);
+    animation: shine 3s infinite linear;
+  }
+
+  @keyframes shine {
+    0% {
+      transform: translateX(-150%) rotate(25deg);
+    }
+    100% {
+      transform: translateX(150%) rotate(25deg);
+    }
+  }
+
+  @keyframes goldPulse {
+    0% {
+      box-shadow:
+        0 0 15px rgba(255, 215, 0, 0.8),
+        0 0 30px rgba(255, 210, 0, 0.6),
+        0 0 45px rgba(255, 200, 0, 0.4);
+    }
+    50% {
+      box-shadow:
+        0 0 25px rgba(255, 215, 0, 1),
+        0 0 50px rgba(255, 210, 0, 0.8),
+        0 0 80px rgba(255, 200, 0, 0.6);
+    }
+    100% {
+      box-shadow:
+        0 0 15px rgba(255, 215, 0, 0.8),
+        0 0 30px rgba(255, 210, 0, 0.6),
+        0 0 45px rgba(255, 200, 0, 0.4);
+    }
+  }
+
+  .gold-cta:hover {
+    transform: scale(1.07);
+    box-shadow:
+      0 0 40px rgba(255, 215, 0, 1),
+      0 0 70px rgba(255, 210, 0, 0.9),
+      0 0 100px rgba(255, 200, 0, 0.7);
+  }
+
+  .gold-cta:active {
+    transform: scale(0.95);
+  }
+</style>
+
+{show && (
+  <div class="w-full flex justify-center py-6">
+    <button class="gold-cta">
+      {ctaMessage}
+    </button>
+  </div>
+)}
