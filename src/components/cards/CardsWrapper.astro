@@ -1,4 +1,11 @@
 ---
+
+export interface Props {
+  mensagem?: string;
+}
+
+const { mensagem } = Astro.props;
+
 ---
 
 <style>
@@ -68,7 +75,7 @@
   <!-- FRASE DE IMPACTO → agora funciona -->
   <div class="impact-box">
     <p>
-      Dominar o Delivery não é só entender de players, vai muito além disso. Resultados se constroem com gestão.
+      {mensagem}
     </p>
   </div>
 </div>

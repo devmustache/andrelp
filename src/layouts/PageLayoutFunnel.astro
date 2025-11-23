@@ -14,19 +14,17 @@ const refeicoes = [
     imagem: "/images/bistro.jpg",
     restaurante: {
       nome: "Bistrôgonofe",
-      descricao: "O bistrô vende hoje por dia mais de x pratos",
-      rating: "⭐⭐⭐⭐⭐",
-      resultado: "Foi um sucesso"
+      descricao: "O bistrô faz hoje 15.000 pedidos por mês",
+      rating: "4,7 ⭐",
     }
   },
   {
-    nome: "Açai na garrafinha",
+    nome: "Milk Milks - Milkshake e Açaí",
     imagem: "/images/acainagarrafa.jpg",
     restaurante: {
-      nome: "Açai na garrafinha",
-      descricao: "Açai direto para a sua casa, entrega rápida e eficiente",
-      rating: "⭐⭐⭐⭐",
-      resultado: "Foi um sucesso"
+      nome: "Milk Milks - Milkshake e Açaí",
+      descricao: "O Milk Milks - Milkshake e Açaí é uma nova marca do Grupo e com apenas 1 ano de operação já faz mais de 100 pedidos diários.",
+      rating: "4,9 ⭐",
     }
   }
 ];
@@ -43,7 +41,7 @@ const hasBlocks = blocks && blocks.length > 0;
       label="Dominando o Delivery de <del>R$397,00</del> por <strong>R$197,00</strong>"
       subLabel="Esta oferta expira em"
     />
-    <CardsWrapper>
+    <CardsWrapper mensagem="Dominar o Delivery não é só entender de players, vai muito além disso. Resultados se constroem com gestão.">
           {refeicoes.map(r => (
             <CardRefeicao {...r} />
           ))}
