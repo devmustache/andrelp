@@ -33,7 +33,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
 import "plyr/dist/plyr.css";
 import { useStore } from "@nanostores/vue";
 import { showVideo } from "@src/store";
@@ -51,8 +51,11 @@ const videoPlayer = ref(null);
 const loading = ref(false);
 let Plyr;
 
-// Detecta mobile
-const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+// Detecta mobile apenas no cliente
+const isMobile = ref(false);
+onMounted(() => {
+  isMobile.value = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+});
 
 // Função para abrir modal e tocar vídeo
 const openVideo = async () => {
@@ -62,7 +65,6 @@ const openVideo = async () => {
   if (!videoPlayer.value) {
     await initPlayer();
   } else {
-    // Se já existe player, apenas play
     loading.value = false;
     videoPlayer.value.play().catch(() => {});
   }
@@ -82,10 +84,10 @@ const pauseVideo = () => {
 const initPlayer = async () => {
   if (!Plyr) Plyr = (await import("plyr")).default;
 
-  loading.value = isMobile;
+  loading.value = isMobile.value;
 
   videoPlayer.value = new Plyr(container.value, {
-    playsinline: isMobile ? true : 0,
+    playsinline: isMobile.value ? true : 0,
     settings: ["loop"],
     iconUrl: "/icons/plyr.svg",
     controls: [
@@ -108,7 +110,7 @@ const initPlayer = async () => {
     },
   });
 
-  if (isMobile) {
+  if (isMobile.value) {
     videoPlayer.value.on("canplay", () => {
       videoPlayer.value.play().catch(() => {});
       loading.value = false;
