@@ -6,7 +6,16 @@
       @click="pauseVideo()"
     >
       <div @click.stop class="container-md relative">
-        <div class="overflow-hidden rounded shadow-xl">
+        <div class="overflow-hidden rounded shadow-xl relative">
+
+          <!-- Loading overlay só no mobile -->
+          <div
+            v-if="loading && isMobile"
+            class="absolute inset-0 z-20 flex items-center justify-center bg-black/50 text-white text-lg font-bold"
+          >
+            Carregando...
+          </div>
+
           <div
             class="w-full"
             ref="container"
@@ -27,27 +36,17 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from "vue";
-
+import { ref, watch } from "vue";
 import "plyr/dist/plyr.css";
-
 import { useStore } from "@nanostores/vue";
 import { showVideo } from "@src/store";
-
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 
 const $show = useStore(showVideo);
 
 const props = defineProps({
-  video_id: {
-    type: String,
-  },
-  embed: {
-    type: String,
-  },
-  className: {
-    type: String,
-  },
+  video_id: { type: String },
+  embed: { type: String },
 });
 
 const container = ref(null);
@@ -55,22 +54,30 @@ const videoPlayer = ref(null);
 const loading = ref(false);
 let Plyr;
 
-onMounted(async () => {});
+// Detecta mobile (iOS ou Android)
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
 const pauseVideo = () => {
-  showVideo.set({
-    id: $show.value.id,
-    show: false,
-  });
-  if (videoPlayer.value) videoPlayer.value.pause();
+  showVideo.set({ id: $show.value.id, show: false });
+
+  if (isMobile && videoPlayer.value) {
+    videoPlayer.value.destroy();
+    videoPlayer.value = null;
+    container.value.innerHTML = ""; // limpa iframe
+    loading.value = false;
+  } else if (videoPlayer.value) {
+    videoPlayer.value.pause();
+  }
 };
 
 const playVideo = async () => {
-  /* allowCookie.value = checkCookie(); */
   if (!Plyr) Plyr = (await import("plyr")).default;
+
   if (!videoPlayer.value) {
-    loading.value = true;
+    if (isMobile) loading.value = true;
+
     videoPlayer.value = new Plyr(container.value, {
-      playsinline: 0,
+      playsinline: isMobile ? true : 0, // inline só no mobile
       settings: ["loop"],
       iconUrl: "/icons/plyr.svg",
       controls: [
@@ -93,10 +100,18 @@ const playVideo = async () => {
       },
     });
 
-    videoPlayer.value.on("ready", function (event) {
-      videoPlayer.value.play();
-      loading.value = false;
-    });
+    if (isMobile) {
+      // Garante autoplay no mobile
+      videoPlayer.value.on("canplay", () => {
+        videoPlayer.value.play().catch(() => {});
+        loading.value = false;
+      });
+    } else {
+      // Desktop continua usando ready
+      videoPlayer.value.on("ready", () => {
+        videoPlayer.value.play();
+      });
+    }
   } else {
     videoPlayer.value.play();
   }
@@ -104,7 +119,6 @@ const playVideo = async () => {
 
 watch(
   $show,
-
   (val) => {
     if (val.show && val.id === props.video_id) {
       playVideo();
@@ -114,7 +128,7 @@ watch(
       enableBodyScroll(document.body);
     }
   },
-  { immediate: true },
+  { immediate: true }
 );
 </script>
 
