@@ -3,7 +3,7 @@
     <div
       v-show="$show.show && $show.id === video_id"
       class="bg-dark-blur z-1000 pointer-events-auto fixed inset-0 grid w-full cursor-pointer place-items-center"
-      @click="pauseVideo()"
+      @click="pauseVideo"
     >
       <div @click.stop class="container-md relative">
         <div class="overflow-hidden rounded shadow-xl">
@@ -17,7 +17,7 @@
 
         <button
           class="btn btn-icon surface-dark btn-absolute -right-1 -top-1 z-10 grid h-10 w-10 place-items-center"
-          @click="pauseVideo()"
+          @click="pauseVideo"
         >
           <slot />
         </button>
@@ -34,7 +34,6 @@ import { showVideo } from "@src/store";
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 
 const $show = useStore(showVideo);
-
 const props = defineProps({
   video_id: { type: String },
   embed: { type: String },
@@ -43,43 +42,43 @@ const props = defineProps({
 
 const container = ref(null);
 const videoPlayer = ref(null);
-const loading = ref(false);
 const PlyrModule = ref(null);
 
-// Carrega Plyr assim que o componente monta
+// Carrega Plyr na montagem
 onMounted(async () => {
   try {
     const plyr = await import("plyr");
     PlyrModule.value = plyr.default;
   } catch (error) {
-    console.error("Falha ao carregar o módulo Plyr:", error);
+    console.error("Falha ao carregar o Plyr:", error);
   }
 });
 
-// Função para pausar o vídeo e fechar modal
 const pauseVideo = () => {
+  if (videoPlayer.value) {
+    videoPlayer.value.pause();
+    // Opcional: destrói apenas no mobile ou se quiser reset completo
+    // videoPlayer.value.destroy(); videoPlayer.value = null;
+  }
   showVideo.set({ id: $show.value.id, show: false });
-  if (videoPlayer.value) videoPlayer.value.pause();
 };
 
-// Função para tocar o vídeo
 const playVideo = async () => {
   if (!PlyrModule.value) {
-    // fallback caso Plyr não tenha sido carregado
     try {
       const plyr = await import("plyr");
       PlyrModule.value = plyr.default;
     } catch (error) {
-      console.error("Falha ao recarregar o módulo Plyr:", error);
+      console.error("Falha ao recarregar o Plyr:", error);
       return;
     }
   }
 
-  if (!videoPlayer.value) {
-    loading.value = true;
+  if (!container.value) return;
 
+  if (!videoPlayer.value) {
     videoPlayer.value = new PlyrModule.value(container.value, {
-      playsinline: 0,
+      playsinline: 1, // mobile inline
       settings: ["loop"],
       iconUrl: "/icons/plyr.svg",
       controls: [
@@ -92,7 +91,6 @@ const playVideo = async () => {
         "fullscreen",
       ],
       youtube: {
-        origin: window.location.host,
         iv_load_policy: 3,
         modestbranding: 1,
         showinfo: 0,
@@ -103,31 +101,21 @@ const playVideo = async () => {
     });
 
     videoPlayer.value.on("ready", () => {
-      videoPlayer.value.play().catch((error) => {
-        console.warn("Autoplay bloqueado pelo navegador na primeira tentativa.", error);
-        loading.value = false;
-      });
-    });
-
-    videoPlayer.value.on("loadeddata", () => {
-      loading.value = false;
+      videoPlayer.value.play().catch(() => {});
     });
   } else {
-    videoPlayer.value.play().catch((error) => {
-      console.warn("Erro ao tentar tocar novamente. Bloqueio de mídia?", error);
-    });
+    videoPlayer.value.play().catch(() => {});
   }
 };
 
-// Observa mudanças no store para abrir/fechar o modal
+// Watcher para abrir/fechar modal
 watch(
   $show,
   (val) => {
     if (val.show && val.id === props.video_id) {
       playVideo();
       disableBodyScroll(document.body);
-    }
-    if (!val.show && val.id === props.video_id) {
+    } else if (!val.show && val.id === props.video_id) {
       enableBodyScroll(document.body);
     }
   },
@@ -136,7 +124,6 @@ watch(
 </script>
 
 <style>
-.z-1000 {
-  z-index: 100;
-}
+.z-1000 { z-index: 100; }
+.bg-dark-blur { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(6px); }
 </style>
