@@ -54,6 +54,17 @@ onMounted(async () => {
   }
 });
 
+/**
+ * Adicionada: Função simples para verificar se o dispositivo é mobile.
+ */
+const isMobile = () => {
+  if (typeof window === 'undefined') return false; // Segurança para SSR
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  );
+};
+
+
 const pauseVideo = () => {
   if (videoPlayer.value) {
     videoPlayer.value.pause();
@@ -101,10 +112,16 @@ const playVideo = async () => {
     });
 
     videoPlayer.value.on("ready", () => {
-      videoPlayer.value.play().catch(() => {});
+      // ✅ MODIFICAÇÃO: Tenta dar play APENAS se NÃO for mobile.
+      if (!isMobile()) {
+        videoPlayer.value.play().catch(() => {});
+      }
     });
   } else {
-    videoPlayer.value.play().catch(() => {});
+    // ✅ MODIFICAÇÃO: Tenta dar play APENAS se NÃO for mobile.
+    if (!isMobile()) {
+      videoPlayer.value.play().catch(() => {});
+    }
   }
 };
 
