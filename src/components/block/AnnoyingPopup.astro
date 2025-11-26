@@ -54,39 +54,26 @@ if (newsletter) {
           </div>
         )}
 
-        <div
-          class="absolute inset-0 z-0"
-          style={`opacity: ${media.image_opacity}`}
-          slot="image"
-        >
-          {media.thumbnail && (
-            <Picture
-              src={media.thumbnail}
-              width={1920}
-              height={900}
-              aspect={2.25}
-              alt={"background image"}
-              layout="fill"
-              sizes={"100vw"}
-              artDirectives={[
-                {
-                  media: "(max-width: 500px)",
-                  aspect: 0.7,
-                  src: media.thumbnail,
-                  breakpoints: [320, 360, 390, 412, 500, 601, 768, 1024, 1200],
-                },
-                {
-                  media: "(max-width: 1000px)",
-                  aspect: 1,
-                  src: media.thumbnail,
-                  breakpoints: [
-                    500, 601, 768, 820, 962, 1280, 1440, 1536, 1920,
-                  ],
-                },
-              ]}
-            />
-          )}
-        </div>
+      <div class="relative w-full h-full overflow-hidden">
+        <Picture
+          src={media.thumbnail}
+          alt="background image"
+          layout="fill"
+          class="absolute inset-0 w-full h-full object-cover"
+          artDirectives={[
+            {
+              media: "(max-width: 500px)",
+              src: media.thumbnail,
+              breakpoints: [320, 360, 390, 412, 500, 601, 768, 1024, 1200],
+            },
+            {
+              media: "(max-width: 1000px)",
+              src: media.thumbnail,
+              breakpoints: [500, 601, 768, 820, 962, 1280, 1440, 1536, 1920],
+            },
+          ]}
+        />
+      </div>
       </Popup>
     </>
   )
@@ -125,35 +112,20 @@ if (newsletter) {
 
       <div
         class="absolute inset-0 z-0"
-        style={`opacity: ${media.image_opacity}`}
+        style={`opacity: ${media.image_opacity}; max-height: none; height: 100%;`}
         slot="image"
       >
         {media.thumbnail && (
           <Picture
             src={media.thumbnail}
-            width={1920}
-            height={900}
-            aspect={2.25}
-            alt={"background image"}
+            alt="background image"
             layout="fill"
-            sizes={"100vw"}
-            artDirectives={[
-              {
-                media: "(max-width: 500px)",
-                aspect: 0.7,
-                src: media.thumbnail,
-                breakpoints: [320, 360, 390, 412, 500, 601, 768, 1024, 1200],
-              },
-              {
-                media: "(max-width: 1000px)",
-                aspect: 1,
-                src: media.thumbnail,
-                breakpoints: [500, 601, 768, 820, 962, 1280, 1440, 1536, 1920],
-              },
-            ]}
+            object-fit="contain"
+            object-position="bottom"
           />
         )}
-      </div>
+        </div>
+
     </Popup>
   )
 }

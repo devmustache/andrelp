@@ -16,7 +16,17 @@
           class="popup__content hide-scrollbar cursor-auto overflow-hidden rounded shadow-xl"
           :class="className"
         >
-          <div slot="content" class="relative text-center">
+          <!-- ========================== -->
+          <!-- FUNDO ABSOLUTO DA IMAGEM -->
+          <!-- ========================== -->
+          <div class="popup__image">
+            <slot name="image" />
+          </div>
+
+          <!-- ========================== -->
+          <!-- CONTEÚDO POR CIMA DA IMAGEM -->
+          <!-- ========================== -->
+          <div class="relative z-10 text-center" slot="content">
             <slot name="content" />
 
             <div
@@ -63,7 +73,6 @@
               class="progress absolute inset-x-0 top-0 z-20"
               :style="`--progress: ${progress}%`"
             ></div>
-            <slot name="image" />
           </div>
         </div>
 
@@ -113,7 +122,6 @@ const props = defineProps({
 
 const $show = useStore(showPopup);
 const { counter, pause, resume, reset } = useInterval(100, { controls: true });
-/* PAUSE THE TIMER */
 pause();
 
 const progress = computed(() => {
@@ -128,11 +136,8 @@ const doCopy = () => {
 };
 const pauseProgress = (playing) => {
   if (props.data.duration === 0) return;
-  if (playing) {
-    pause();
-  } else {
-    resume();
-  }
+  if (playing) pause();
+  else resume();
 };
 
 const hide = () => {
@@ -144,19 +149,13 @@ const hide = () => {
 
 onMounted(() => {
   if (props.data.delay === 0) {
-    showPopup.set({
-      type: props.link,
-      show: true,
-    });
+    showPopup.set({ type: props.link, show: true });
     resume();
   }
 
   if (props.data.delay > 0) {
     setTimeout(() => {
-      showPopup.set({
-        type: props.link,
-        show: true,
-      });
+      showPopup.set({ type: props.link, show: true });
       resume();
     }, props.data.delay * 1000);
   }
@@ -188,6 +187,16 @@ watch(
 </script>
 
 <style lang="postcss">
+.popup__image {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  display: block;
+}
+
 .popup {
   &__content {
     max-height: calc(100vh - 2rem);
@@ -198,6 +207,7 @@ watch(
     }
   }
 }
+
 .popup_wrap {
   @apply relative;
   z-index: 100;
@@ -205,6 +215,7 @@ watch(
   padding: 0 !important;
   margin: 0 !important;
 }
+
 .progress {
   @apply pointer-events-none h-3 origin-top-left bg-secondary transition-transform;
   transform: scaleX(var(--progress));
