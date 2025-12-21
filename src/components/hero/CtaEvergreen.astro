@@ -3,12 +3,14 @@ export interface Props {
   minutes?: number;
   label?: string;
   subLabel?: string;
+  url?: string;
 }
 
 const {
   minutes = 15,
   label = "Adquira agora por R$197,00",
-  subLabel = "Oferta expira em"
+  subLabel = "Oferta expira em",
+  url = ""
 } = Astro.props;
 ---
 
@@ -20,14 +22,16 @@ const {
   <div class="text-center">
 
     <!-- Botão CTA -->
-    <button
-      class="inline-block px-6 py-3 text-lg font-bold text-white
-            bg-red-600 rounded-2xl shadow-xl
-            transform md:hover:scale-105 transition-all duration-300 ease-out
-            focus:outline-none focus:ring-4 focus:ring-red-400 active:scale-98
-            w-auto max-w-xs"
-      set:html={label}
-    />
+    <a href={url} class="no-underline">
+        <button
+          class="inline-block px-6 py-3 text-lg font-bold text-white
+                bg-red-600 rounded-2xl shadow-xl
+                transform md:hover:scale-105 transition-all duration-300 ease-out
+                focus:outline-none focus:ring-4 focus:ring-red-400 active:scale-98
+                w-auto max-w-xs"
+          set:html={label}
+        />
+    </a>
 
     <!-- Contador -->
     <div id="evergreen-timer" class="mt-3">

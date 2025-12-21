@@ -1,12 +1,14 @@
 ---
 export interface Props {
-  ctaMessage?: string;
+  ctaMessage?: string
+  url?: string
   show?: boolean; // trava de renderização
 }
 
 const {
   ctaMessage = "GARANTA AGORA — OFERTA IMPERDÍVEL!",
   show = false,
+  url = "",
 } = Astro.props;
 
 // 🚫 Se show = false, componente não aparece
@@ -98,8 +100,10 @@ if (!show) {
 
 {show && (
   <div class="w-full flex justify-center py-6">
-    <button class="gold-cta">
-      {ctaMessage}
-    </button>
+    <a href={url} class="no-underline">
+      <button class="gold-cta">
+        {ctaMessage}
+      </button>
+    </a>
   </div>
 )}
