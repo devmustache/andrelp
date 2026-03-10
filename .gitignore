@@ -22,3 +22,10 @@ pnpm-debug.log
 
 # macOS-specific files
 .DS_Store
+
+# SQLite Database
+checklist.db
+checklist.db-wal
+checklist.db-shm
+*.sqlite
+*.sqlite3

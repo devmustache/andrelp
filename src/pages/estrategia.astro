@@ -1,0 +1,1759 @@
+---
+import { redis } from '../lib/db';
+
+export const prerender = false;
+
+// If it's a POST request, save the progress state in the database
+if (Astro.request.method === "POST") {
+    try {
+        const bodyStr = await Astro.request.text();
+        const bodyJson = JSON.parse(bodyStr);
+        // Insert or Update the JSON state
+        await redis.set('checklist_progress', JSON.stringify(bodyJson));
+        return new Response(JSON.stringify({ success: true }));
+    } catch (e) {
+        return new Response(JSON.stringify({ success: false }), { status: 500 });
+    }
+}
+
+// Otherwise, GET the progress state
+let serverStateStr = '{}';
+try {
+    const data = await redis.get<string>('checklist_progress');
+    if (data) {
+        serverStateStr = typeof data === 'string' ? data : JSON.stringify(data);
+    }
+} catch (e) {
+    console.error("Could not fetch from Upstash:", e);
+}
+---
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OS · Guia iFood R$17 — Do zero à primeira venda · Dominando Delivery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --ink:#131109;--bg:#f5f2eb;--surface:#fff;--muted:#7a7060;--border:#e2ddd3;--border2:#ede9e1;
+  --red:#c8341a;--rd:#c8341a1a;--yel:#f5c840;--yd:#f5c84018;
+  --grn:#1e6b3c;--gd:#1e6b3c18;--blu:#1a4f99;--bd:#1a4f9918;
+  --pur:#5b2d8c;--pd:#5b2d8c18;--orn:#c96a10;--od:#c96a1018;
+  --fh:'Syne',sans-serif;--fb:'Instrument Sans',sans-serif;--fm:'Fira Code',monospace;
+}
+html{scroll-behavior:smooth;font-size:14px}
+body{font-family:var(--fb);background:var(--bg);color:var(--ink);line-height:1.6;overflow-x:hidden}
+
+/* ── SHELL ── */
+.shell{display:grid;grid-template-columns:252px 1fr;min-height:100vh}
+@media(max-width:900px){.shell{grid-template-columns:1fr}.sidenav{display:none!important}}
+
+/* ── SIDENAV ── */
+.sidenav{position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--ink);display:flex;flex-direction:column;scrollbar-width:thin;scrollbar-color:#333 transparent}
+.nav-brand{padding:22px 20px 18px;border-bottom:1px solid #ffffff12}
+.nav-brand strong{font-family:var(--fh);font-size:13px;font-weight:800;color:var(--yel);display:block}
+.nav-brand span{font-size:10px;color:#ffffff35;letter-spacing:2px;text-transform:uppercase;display:block;margin-top:3px}
+.nav-prog{padding:12px 20px;border-bottom:1px solid #ffffff12}
+.np-row{display:flex;justify-content:space-between;font-size:10px;color:#ffffff35;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.np-row strong{color:var(--yel)}
+.np-track{height:3px;background:#ffffff15;border-radius:2px;overflow:hidden}
+.np-bar{height:100%;background:linear-gradient(90deg,var(--yel),#ffe040);border-radius:2px;width:0%;transition:width .4s ease}
+.nsl{padding:14px 20px 5px;font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#ffffff25;display:flex;align-items:center;gap:8px}
+.nsl::before{content:'';width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.nsl-p::before{background:var(--red)}.nsl-i::before{background:var(--orn)}.nsl-l::before{background:var(--blu)}.nsl-la::before{background:var(--pur)}.nsl-t::before{background:var(--grn)}
+.ni{display:flex;align-items:center;gap:10px;padding:7px 20px;font-size:11.5px;color:#ffffff40;cursor:pointer;border-left:2px solid transparent;transition:all .15s;text-decoration:none}
+.ni:hover{color:#ffffffaa;background:#ffffff08;border-left-color:#ffffff20}
+.ni.active{color:#fff;background:#ffffff0d;border-left-color:var(--yel)}
+.ni.done{color:#ffffff28}.ni.done .nic{background:var(--grn);border-color:var(--grn)}
+.nic{width:16px;height:16px;min-width:16px;border:1.5px solid #ffffff18;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;font-weight:700;transition:all .2s;flex-shrink:0}
+.nid{margin-left:auto;font-family:var(--fm);font-size:9px;color:#ffffff25;white-space:nowrap}
+.nav-foot{margin-top:auto;padding:14px 20px;border-top:1px solid #ffffff12;font-size:11px;color:#ffffff35}
+.nav-foot strong{color:var(--yel);font-family:var(--fh);font-size:20px;font-weight:800;display:block;line-height:1;margin-bottom:2px}
+
+/* ── MAIN ── */
+.main{min-width:0}
+
+/* ── HERO ── */
+.hero{background:var(--ink);color:#fff;padding:60px 56px 72px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 420px 280px at 110% 50%,#c8341a20,transparent 70%),repeating-linear-gradient(-45deg,transparent,transparent 30px,#ffffff03 30px,#ffffff03 31px);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:44px;background:var(--bg);clip-path:ellipse(52% 100% at 50% 100%)}
+.h-tag{display:inline-flex;align-items:center;gap:8px;background:var(--red);color:#fff;font-family:var(--fh);font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;padding:5px 14px;margin-bottom:22px}
+.hero h1{font-family:var(--fh);font-size:clamp(38px,5.5vw,66px);font-weight:800;line-height:.92;letter-spacing:-2.5px;margin-bottom:18px;position:relative}
+.hero h1 em{font-style:normal;color:var(--yel)}
+.h-sub{font-size:15px;color:#b0a898;max-width:540px;line-height:1.75;margin-bottom:38px;position:relative}
+.h-stats{display:flex;gap:36px;flex-wrap:wrap;position:relative}
+.hs strong{display:block;font-family:var(--fh);font-size:30px;font-weight:800;color:#fff;line-height:1}
+.hs span{font-size:10px;color:#ffffff35;text-transform:uppercase;letter-spacing:1.5px;margin-top:3px;display:block}
+@media(max-width:600px){.hero{padding:40px 24px 60px}}
+
+/* ── FASE HEADER ── */
+.fw{padding:48px 56px 0}
+@media(max-width:600px){.fw{padding:32px 24px 0}}
+.fh{display:flex;align-items:flex-start;gap:18px;padding-bottom:18px;border-bottom:2px solid var(--border);margin-bottom:18px}
+.fbar{width:4px;min-width:4px;border-radius:2px;align-self:stretch}
+.fi{flex:1}.fn{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:3px}
+.ft{font-family:var(--fh);font-size:clamp(22px,3vw,30px);font-weight:800;letter-spacing:-.5px;line-height:1}
+.fd{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.6}
+.fc{font-family:var(--fm);font-size:11px;font-weight:500;padding:5px 12px;border-radius:3px;white-space:nowrap;align-self:flex-start;margin-top:4px}
+
+/* ── TASKS ── */
+.tw{padding:0 56px;display:flex;flex-direction:column;gap:8px;padding-bottom:8px}
+@media(max-width:600px){.tw{padding:0 24px}}
+.tc{background:var(--surface);border:1px solid var(--border);position:relative;transition:box-shadow .2s,border-color .2s}
+.tc:hover{box-shadow:0 4px 20px rgba(0,0,0,.07)}
+.tc.done{opacity:.48}.tc.done .tt-title{text-decoration:line-through;text-decoration-color:var(--muted)}
+.tlb{position:absolute;left:0;top:0;bottom:0;width:3px}
+
+/* Card top */
+.tt{display:flex;align-items:flex-start;gap:14px;padding:17px 20px 15px;cursor:pointer}
+.tcb{width:22px;height:22px;min-width:22px;border:2px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;flex-shrink:0;margin-top:1px;font-size:12px;font-weight:700;color:transparent}
+.tc.done .tcb{background:var(--grn);border-color:var(--grn);color:#fff}
+.tm{display:flex;align-items:center;gap:7px;margin-bottom:5px;flex-wrap:wrap}
+.td-day{font-family:var(--fm);font-size:10px;font-weight:500;background:var(--ink);color:#fff;padding:2px 7px;border-radius:2px;letter-spacing:.5px}
+.td-area{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:2px 8px;border-radius:2px}
+.td-time{font-family:var(--fm);font-size:10px;color:var(--muted);margin-left:auto}
+.tt-title{font-family:var(--fh);font-size:15px;font-weight:700;line-height:1.25;letter-spacing:-.2px;margin-bottom:3px}
+.tt-desc{font-size:12.5px;color:var(--muted);line-height:1.6}
+.tog{margin-left:12px;align-self:flex-start;flex-shrink:0;background:none;border:1px solid var(--border);color:var(--muted);font-family:var(--fb);font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:5px 11px;cursor:pointer;border-radius:3px;transition:all .15s;white-space:nowrap;margin-top:1px}
+.tog:hover{background:var(--ink);border-color:var(--ink);color:#fff}
+
+/* Body */
+.tb{display:none;border-top:1px solid var(--border2)}
+.tb.open{display:block}
+
+/* Tabs */
+.ctabs{display:flex;border-bottom:1px solid var(--border2);background:#faf8f4;overflow-x:auto}
+.ctab{padding:10px 17px;font-family:var(--fb);font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);border:none;border-bottom:2px solid transparent;background:none;cursor:pointer;white-space:nowrap;transition:all .15s}
+.ctab.active{color:var(--ink);border-bottom-color:var(--ink)}.ctab:hover{color:var(--ink)}
+.tp{display:none}.tp.active{display:block}
+.tpc{padding:20px 22px}
+
+/* Steps */
+.sl{display:flex;flex-direction:column;gap:0}
+.si{display:flex;gap:15px;padding-bottom:18px;position:relative}
+.si::before{content:'';position:absolute;left:12px;top:26px;bottom:0;width:1px;background:var(--border2)}
+.si:last-child::before{display:none}.si:last-child{padding-bottom:0}
+.sn{width:26px;height:26px;min-width:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:11px;font-weight:800;color:#fff;flex-shrink:0}
+.sb h4{font-size:13px;font-weight:700;margin-bottom:3px;margin-top:2px;line-height:1.3}
+.sb p{font-size:12.5px;color:var(--muted);line-height:1.65}
+.sb code{font-family:var(--fm);font-size:11.5px;background:#f0ece2;padding:1px 5px;border-radius:2px;color:var(--ink)}
+
+/* Alert */
+.al{border-left:3px solid;padding:11px 15px;margin-bottom:16px;border-radius:0 3px 3px 0;font-size:12.5px;line-height:1.65}
+.al-y{border-color:var(--yel);background:var(--yd)}.al-r{border-color:var(--red);background:var(--rd)}.al-g{border-color:var(--grn);background:var(--gd)}
+.al strong{font-weight:700}
+
+/* Info grid */
+.ig{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+@media(max-width:540px){.ig{grid-template-columns:1fr}}
+.ic{background:#faf8f4;border:1px solid var(--border2);padding:11px 13px;border-radius:3px}
+.ic dt{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.ic dd{font-size:12.5px;line-height:1.5;font-weight:500}
+
+/* Code block */
+.cb{margin:12px 0}.cb:first-child{margin-top:0}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:8px 15px;border-radius:3px 3px 0 0}
+.cl{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#ffffffbb}
+.cp{background:#ffffff22;border:none;color:#ffffffaa;font-family:var(--fb);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;cursor:pointer;border-radius:2px;transition:all .15s;white-space:nowrap}
+.cp:hover{background:#ffffff40;color:#fff}.cp.ok{background:var(--grn)!important;color:#fff}
+.cv{background:#0d0d18;color:#c8c8e8;font-family:var(--fm);font-size:12px;line-height:1.9;padding:16px 20px;border-radius:0 0 3px 3px;white-space:pre-wrap;word-break:break-word;overflow-x:auto;max-height:400px;overflow-y:auto}
+
+/* Metrics table */
+.mt{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+.mt th{background:#f0ece2;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:8px 12px;text-align:left;color:var(--muted);border-bottom:1px solid var(--border)}
+.mt td{padding:8px 12px;border-bottom:1px solid var(--border2);vertical-align:top;line-height:1.5}
+.mt tr:last-child td{border-bottom:none}
+.mg{color:var(--grn);font-weight:700}.mw{color:var(--red);font-weight:700}.mc{color:var(--orn);font-weight:700}
+
+/* Checklist */
+.chl{display:flex;flex-direction:column;gap:6px}
+.chi{display:flex;align-items:flex-start;gap:10px;font-size:12.5px;line-height:1.5}
+.chi::before{content:'☐';flex-shrink:0;font-size:14px;color:var(--muted)}
+
+/* Spacer / pad */
+.sp{height:44px}.bp{height:80px}
+
+/* Float button */
+.fab{position:fixed;bottom:24px;right:24px;z-index:200}
+.fab-btn{width:50px;height:50px;background:var(--ink);border:none;border-radius:50%;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,.25);transition:background .2s,transform .15s}
+.fab-btn:hover{background:var(--red);transform:scale(1.05)}
+.fab-menu{position:absolute;bottom:60px;right:0;background:var(--ink);border:1px solid #ffffff15;min-width:250px;border-radius:4px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.3);display:none}
+.fab-menu.open{display:block}
+.fam-hd{padding:11px 16px 7px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#ffffff30;border-bottom:1px solid #ffffff12}
+.fam-l{display:block;padding:9px 16px;font-size:12px;color:#b0a898;cursor:pointer;text-decoration:none;transition:background .15s,color .15s;border-left:2px solid transparent}
+.fam-l:hover{background:#ffffff0d;color:#fff;border-left-color:var(--yel)}
+.fam-l span{display:block;font-size:10px;color:#ffffff28;margin-top:1px}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ══════════ SIDENAV ══════════ -->
+<nav class="sidenav">
+  <div class="nav-brand">
+    <strong>Dominando Delivery</strong>
+    <span>OS · Guia R$17 · 30 dias</span>
+  </div>
+  <div class="nav-prog">
+    <div class="np-row"><span>Progresso</span><strong id="pct">0 / 20</strong></div>
+    <div class="np-track"><div class="np-bar" id="pbar"></div></div>
+  </div>
+
+  <div class="nsl nsl-p">Fase 1 · Produto</div>
+  <div class="ni" data-t="t01" onclick="go('t01')"><div class="nic" id="nc-t01"></div>Briefing com André<span class="nid">D1</span></div>
+  <div class="ni" data-t="t02" onclick="go('t02')"><div class="nic" id="nc-t02"></div>Roteiros de vídeo<span class="nid">D2</span></div>
+  <div class="ni" data-t="t03" onclick="go('t03')"><div class="nic" id="nc-t03"></div>Dia de gravação<span class="nid">D3-5</span></div>
+  <div class="ni" data-t="t04" onclick="go('t04')"><div class="nic" id="nc-t04"></div>Editar no CapCut<span class="nid">D6-8</span></div>
+  <div class="ni" data-t="t05" onclick="go('t05')"><div class="nic" id="nc-t05"></div>E-book no Canva<span class="nid">D3-7</span></div>
+  <div class="ni" data-t="t06" onclick="go('t06')"><div class="nic" id="nc-t06"></div>PDF + Mockup<span class="nid">D7</span></div>
+
+  <div class="nsl nsl-i">Fase 2 · Infraestrutura</div>
+  <div class="ni" data-t="t07" onclick="go('t07')"><div class="nic" id="nc-t07"></div>Kiwify — produto<span class="nid">D8</span></div>
+  <div class="ni" data-t="t08" onclick="go('t08')"><div class="nic" id="nc-t08"></div>Order Bump + OTO<span class="nid">D9</span></div>
+  <div class="ni" data-t="t09" onclick="go('t09')"><div class="nic" id="nc-t09"></div>Pixel Meta<span class="nid">D9</span></div>
+  <div class="ni" data-t="t10" onclick="go('t10')"><div class="nic" id="nc-t10"></div>5 e-mails automáticos<span class="nid">D10</span></div>
+  <div class="ni" data-t="t10b" onclick="go('t10b')"><div class="nic" id="nc-t10b"></div>Grupo VIP WhatsApp<span class="nid">D10</span></div>
+
+  <div class="nsl nsl-l">Fase 3 · Landing Page</div>
+  <div class="ni" data-t="t11" onclick="go('t11')"><div class="nic" id="nc-t11"></div>Publicar no Vercel<span class="nid">D10</span></div>
+  <div class="ni" data-t="t12" onclick="go('t12')"><div class="nic" id="nc-t12"></div>Testar funil<span class="nid">D11</span></div>
+
+  <div class="nsl nsl-la">Fase 4 · Lançamento</div>
+  <div class="ni" data-t="t13" onclick="go('t13')"><div class="nic" id="nc-t13"></div>Aquecimento orgânico<span class="nid">D8-13</span></div>
+  <div class="ni" data-t="t14" onclick="go('t14')"><div class="nic" id="nc-t14"></div>5 stories lançamento<span class="nid">D14</span></div>
+  <div class="ni" data-t="t15" onclick="go('t15')"><div class="nic" id="nc-t15"></div>WhatsApp lista quente<span class="nid">D14</span></div>
+
+  <div class="nsl nsl-t">Fase 5 · Tráfego & Escala</div>
+  <div class="ni" data-t="t16" onclick="go('t16')"><div class="nic" id="nc-t16"></div>Campanha Meta Ads<span class="nid">D15</span></div>
+  <div class="ni" data-t="t17" onclick="go('t17')"><div class="nic" id="nc-t17"></div>Monitorar 5 dias<span class="nid">D15-19</span></div>
+  <div class="ni" data-t="t18" onclick="go('t18')"><div class="nic" id="nc-t18"></div>Otimizar + escalar<span class="nid">D20</span></div>
+  <div class="ni" data-t="t19" onclick="go('t19')"><div class="nic" id="nc-t19"></div>Remarketing<span class="nid">D20+</span></div>
+  <div class="ni" data-t="t20" onclick="go('t20')"><div class="nic" id="nc-t20"></div>Reels + prova social<span class="nid">D16+</span></div>
+
+  <div class="nav-foot">
+    <strong id="dcnt">0</strong>tarefas concluídas de 21
+  </div>
+</nav>
+
+<!-- ══════════ MAIN ══════════ -->
+<main class="main">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="h-tag">Sistema Operacional · Infoproduto Low Ticket</div>
+  <h1>Do zero à<br>primeira <em>venda.</em></h1>
+  <p class="h-sub">20 tarefas em ordem de construção. Cada uma com passo a passo, roteiros prontos e copy para copiar e colar. Você executa — eu produzo junto.</p>
+  <div class="h-stats">
+    <div class="hs"><strong>30</strong><span>dias · sprint</span></div>
+    <div class="hs"><strong>R$17</strong><span>preço do produto</span></div>
+    <div class="hs"><strong>5</strong><span>fases</span></div>
+    <div class="hs"><strong>21</strong><span>tarefas</span></div>
+  </div>
+</div>
+
+<!-- ══ FASE 1: PRODUTO ══ -->
+<div class="fw">
+  <div class="fh">
+    <div class="fbar" style="background:var(--red)"></div>
+    <div class="fi">
+      <div class="fn" style="color:var(--red)">Fase 01</div>
+      <div class="ft">Produto</div>
+      <div class="fd">Dias 1–8 · Gravar, editar e diagramar o e-book. Tudo pronto antes de abrir a Kiwify.</div>
+    </div>
+    <div class="fc" style="background:var(--rd);color:var(--red)">6 tarefas</div>
+  </div>
+</div>
+<div class="tw">
+
+<!-- T01 -->
+<div class="tc" id="t01"><div class="tlb" style="background:var(--red)"></div>
+<div class="tt" onclick="tog('t01')">
+  <div class="tcb" onclick="event.stopPropagation();chk('t01')">✓</div>
+  <div style="flex:1;min-width:0">
+    <div class="tm"><span class="td-day">DIA 1</span><span class="td-area" style="background:var(--rd);color:var(--red)">Estratégico</span><span class="td-time">⏱ 1–2h</span></div>
+    <div class="tt-title">Briefing com o André — validar dados reais antes de gravar</div>
+    <div class="tt-desc">Números de pedidos, marcas, nota média e promessa central. Se André gravar com dados diferentes dos da landing page, a audiência vai perceber.</div>
+  </div>
+  <button class="tog">Abrir</button>
+</div>
+<div class="tb" id="b-t01">
+  <div class="ctabs">
+    <button class="ctab active" onclick="tab(this,'p-t01-a')">Passo a passo</button>
+    <button class="ctab" onclick="tab(this,'p-t01-b')">Mensagem pronta</button>
+  </div>
+  <div class="tp active" id="p-t01-a"><div class="tpc">
+    <div class="al al-y"><strong>Por que é a primeira tarefa:</strong> Se André gravar "10.000 pedidos" e a LP diz "15.000", a audiência percebe. Valide tudo agora, uma vez.</div>
+    <div class="sl">
+      <div class="si"><div class="sn" style="background:var(--red)">1</div><div class="sb"><h4>Confirmar os números reais do André</h4><p>Pedidos/mês hoje (número exato), quais marcas estão ativas, nota média no iFood, anos de operação. Esses dados aparecem em anúncio, LP e e-book — precisam ser idênticos em todo lugar.</p></div></div>
+      <div class="si"><div class="sn" style="background:var(--red)">2</div><div class="sb"><h4>Validar a promessa central do produto</h4><p><em>"Em 10 dias aplicando esses pontos, sua operação fica mais visível, mais lucrativa e mais previsível no iFood."</em> André precisa concordar — ele vai falar isso no vídeo.</p></div></div>
+      <div class="si"><div class="sn" style="background:var(--red)">3</div><div class="sb"><h4>Confirmar funil de preços</h4><p>Produto: R$17 · Order Bump (planilha CMV): R$27 · Upsell OTO (curso completo): R$97 de R$197. André precisa ter o PDF da planilha ou vocês constroem junto antes do Dia 9.</p></div></div>
+      <div class="si"><div class="sn" style="background:var(--red)">4</div><div class="sb"><h4>Agendar o dia de gravação</h4><p>Reserve um dia inteiro (mínimo 3h) para gravar tudo de uma vez: 3 hooks + 1 VSL + 1 boas-vindas. Precisa de: celular com boa câmera, microfone de lapela (~R$30 Shopee), fundo neutro, luz natural.</p></div></div>
+    </div>
+  </div></div>
+  <div class="tp" id="p-t01-b"><div class="tpc">
+    <div class="cb"><div class="ch" style="background:#1a0e00"><span class="cl">Mensagem WhatsApp para o André</span><button class="cp" onclick="cp(this)">Copiar</button></div>
+<div class="cv">André, boa tarde! Antes de você gravar qualquer coisa, preciso confirmar alguns dados para garantir que tudo está alinhado em todos os materiais.
+
+Me confirma:
+1. Quantos pedidos/mês suas marcas fazem hoje no iFood? (número exato)
+2. Quais são as marcas que você opera atualmente?
+3. Qual a nota média das suas lojas no app?
+4. Você se sente confortável em dizer: "Em 10 dias aplicando esses pontos, sua loja fica mais visível, mais lucrativa e mais previsível no iFood"?
+
+Com isso confirmado, mando os roteiros já adaptados com seus dados reais.
+
+Quando conseguimos fazer o dia de gravação? Precisamos de ~3 horas. Pode ser em casa mesmo — fundo de parede simples já resolve.</div></div>
+  </div></div>
+</div></div>
+
+<!-- T02 -->
+<div class="tc" id="t02"><div class="tlb" style="background:var(--red)"></div>
+<div class="tt" onclick="tog('t02')">
+  <div class="tcb" onclick="event.stopPropagation();chk('t02')">✓</div>
+  <div style="flex:1;min-width:0">
+    <div class="tm"><span class="td-day">DIA 2</span><span class="td-area" style="background:var(--rd);color:var(--red)">Audiovisual</span><span class="td-time">⏱ 1h</span></div>
+    <div class="tt-title">Enviar roteiros para o André ler antes do dia de gravação</div>
+    <div class="tt-desc">3 hooks (30–45s) + 1 VSL (3–4 min) + 1 boas-vindas. André lê com antecedência — no dia grava fluente, sem memorizar.</div>
+  </div>
+  <button class="tog">Abrir</button>
+</div>
+<div class="tb" id="b-t02">
+  <div class="ctabs">
+    <button class="ctab active" onclick="tab(this,'p-t02-a')">Hook A</button>
+    <button class="ctab" onclick="tab(this,'p-t02-b')">Hook B</button>
+    <button class="ctab" onclick="tab(this,'p-t02-c')">Hook C</button>
+    <button class="ctab" onclick="tab(this,'p-t02-d')">VSL · Landing page</button>
+    <button class="ctab" onclick="tab(this,'p-t02-e')">Boas-vindas</button>
+  </div>
+  <div class="tp active" id="p-t02-a"><div class="tpc">
+    <div class="al al-y"><strong>Instrução para o André:</strong> Não memorize. Leia uma vez, entenda o raciocínio e fale com suas palavras. Gravar 2–3 takes por vídeo é normal — cortamos na edição.</div>
+    <div class="cb"><div class="ch" style="background:#1a0400"><span class="cl">Hook A — "O portal que ninguém olha" · 30–45s</span><button class="cp" onclick="cp(this)">Copiar</button></div>
+<div class="cv">[OLHA DIRETO PARA A CÂMERA — TOM SÉRIO, PRÓXIMO]
+
+"Você usa o iFood todo dia.
+Vê os pedidos chegando, vê a nota, vê o faturamento.
+
+Mas eu tenho certeza que você nunca abriu
+a Tela de Desempenho do portal.
+
+Lá dentro tem 4 abas que controlam tudo:
+quanto você vende, como seu cardápio converte,
+quantos pedidos você perde — e por quê.
+
+Quem domina essas 4 abas
+aparece mais, cobra mais e fica no topo.
+
+Quem ignora... continua trabalhando muito
+e se perguntando por que o dinheiro some.
+
+Eu fiz um guia com os 10 pontos do portal
+que você precisa olhar todo dia.
+
+R$17. Link na bio."
+
+[PAUSA DE 1 SEGUNDO — SORRISO DIRETO PARA A CÂMERA]</div></div>
+  </div></div>
+  <div class="tp" id="p-t02-b"><div class="tpc">
+    <div class="cb"><div class="ch" style="background:#1a0400"><span class="cl">Hook B — "A promoção que te quebra" · 30–45s</span><button class="cp" onclick="cp(this)">Copiar</button></div>
+<div class="cv">[COMEÇA COM UMA PERGUNTA — TOM DE REVELAÇÃO]
+
+"Você tem promoção ativa agora no iFood?
+
+Parabéns. E você sabe se ela está te dando lucro
+ou tirando dinheiro do seu bolso?
+
+Muita gente empilha campanha inteligente,
+taxa grátis e cupom ao mesmo tempo —
+sem saber que cada desconto desses sai da sua margem.
+
+O portal do iFood tem uma aba que te mostra
+exatamente o que o iFood subsidia
+e o que você está pagando do próprio bolso.
+
+Se você nunca viu esse número,
+pode ter certeza: você está pagando mais do que deveria.
+
+Eu criei um guia prático com os 10 pontos do portal
+que você precisa dominar pra parar de perder margem.
+
+R$17. Vale muito mais. Link na bio."</div></div>
+  </div></div>
+  <div class="tp" id="p-t02-c"><div class="tpc">
+    <div class="cb"><div class="ch" style="background:#1a0400"><span class="cl">Hook C — "O número que muda tudo" · gravar mostrando tela do portal</span><button class="cp" onclick="cp(this)">Copiar</button></div>
+<div class="cv">[COMEÇA MOSTRANDO A TELA DO PORTAL DO IFOOD NO CELULAR]
+
+"Olha esse número aqui.
+[APONTA PARA A TELA]
+Isso é a taxa de conversão do cardápio.
+
+A maioria dos donos de restaurante
+nunca viu esse número — e esse é o motivo
+de alguns restaurantes aparecerem muito no iFood
+e outros ficarem invisíveis.
+
+[VIRA PARA A CÂMERA]
+
+O portal do iFood é cheio de informações assim —
+que controlam sua visibilidade, seu lucro, seus pedidos.
+
+Eu passei 13 anos dentro de cozinha
+aprendendo a usar cada uma dessas telas.
+
+Coloquei tudo num guia de 10 pontos.
+R$17. Link na bio."</div></div>
+  </div></div>
+  <div class="tp" id="p-t02-d"><div class="tpc">
+    <div class="cb"><div class="ch" style="background:#1a0400"><span class="cl">VSL · Landing page · 3–4 minutos · adapte com dados reais</span><button class="cp" onclick="cp(this)">Copiar</button></div>
+<div class="cv">[0:00 — DOR]
+"Se você tem um restaurante no iFood e sente que
+trabalha demais pra sobrar pouco no final do mês —
+esse vídeo é pra você.
+
+Eu vou te mostrar o que a maioria dos donos de delivery
+nunca aprendeu: como usar o portal do iFood de verdade."
+
+[0:30 — AGITAÇÃO]
+"O problema não é falta de pedidos.
+O problema é que o portal do iFood tem informações
+que te mostram exatamente onde o dinheiro some —
+e a maioria das pessoas nunca abre essas abas.
+
+Promoção mal feita que come sua margem.
+Nota caindo porque você não responde avaliações.
+Repasse errado que você nunca percebeu.
+Cardápio com pratos que ninguém compra mas todo mundo vê.
+
+Isso está acontecendo no seu restaurante agora."
+
+[1:15 — AUTORIDADE]
+"Meu nome é André Beleza.
+Sou dono de restaurantes há 13 anos.
+Hoje minhas marcas fazem mais de 15.000 pedidos por mês no iFood.
+
+Não aprendi isso em livro.
+Aprendi errando, perdendo dinheiro,
+e eventualmente dominando cada aba desse portal."
+
+[2:00 — SOLUÇÃO]
+"Eu coloquei tudo que aprendi num guia prático:
+os 10 pontos do portal do iFood que você precisa olhar todo dia.
+
+Cada ponto tem: o que é, por que importa,
+como usar na prática — e qual número você precisa atingir.
+
+[Mostre o mockup do e-book]
+
+São 12 páginas diretas ao ponto. Sem enrolação, sem teoria."
+
+[2:45 — OFERTA]
+"Por R$17 você acessa o guia agora.
+Direto no seu e-mail, em menos de 2 minutos.
+
+Garantia de 7 dias — se achar que não valeu,
+me manda mensagem e eu devolvo tudo.
+
+Clica no botão abaixo e começa hoje."</div></div>
+  </div></div>
+  <div class="tp" id="p-t02-e"><div class="tpc">
+    <div class="cb"><div class="ch" style="background:#1a0400"><span class="cl">Vídeo boas-vindas pós-compra · 1–2 min · tom pessoal</span><button class="cp" onclick="cp(this)">Copiar</button></div>
+<div class="cv">"Oi, [NOME]! Aqui é o André.
+
+Antes de tudo: muito obrigado pela confiança.
+
+Seu guia já chegou no e-mail — mas antes de você ir lá,
+deixa eu te dar uma dica de como aproveitar ao máximo.
+
+Não tenta ler tudo de uma vez.
+Abre o portal do iFood no celular,
+vai em Tela de Desempenho,
+e lê o capítulo 1 junto com o portal aberto.
+
+Em 10 minutos você já vai enxergar seu delivery diferente.
+
+Se tiver qualquer dúvida, responde o e-mail que você recebeu.
+Eu leio.
+
+Bom estudo — e boas vendas!"</div></div>
+  </div></div>
+</div></div>
+
+<!-- T03 -->
+<div class="tc" id="t03"><div class="tlb" style="background:var(--red)"></div>
+<div class="tt" onclick="tog('t03')">
+  <div class="tcb" onclick="event.stopPropagation();chk('t03')">✓</div>
+  <div style="flex:1;min-width:0">
+    <div class="tm"><span class="td-day">D3–5</span><span class="td-area" style="background:var(--rd);color:var(--red)">Audiovisual</span><span class="td-time">⏱ 3h com André</span></div>
+    <div class="tt-title">Dia de gravação — 3 hooks + VSL + boas-vindas + fotos</div>
+    <div class="tt-desc">Concentre tudo em um único dia. Na ordem certa, André grava tudo em 3 horas. Não saia sem os arquivos transferidos para o Google Drive.</div>
+  </div>
+  <button class="tog">Abrir</button>
+</div>
+<div class="tb" id="b-t03">
+  <div class="ctabs">
+    <button class="ctab active" onclick="tab(this,'p-t03-a')">Checklist do dia</button>
+    <button class="ctab" onclick="tab(this,'p-t03-b')">Equipamento e set</button>
+  </div>
+  <div class="tp active" id="p-t03-a"><div class="tpc">
+    <div class="al al-r"><strong>Ordem de gravação:</strong> Hooks primeiro (André mais descansado) → VSL → boas-vindas → fotos por último. Hooks ruins = anúncios que não convertem.</div>
+    <div class="chl">
+      <div class="chi">Hook A gravado (2–3 takes) — formato 9:16 vertical</div>
+      <div class="chi">Hook B gravado (2–3 takes) — formato 9:16 vertical</div>
+      <div class="chi">Hook C gravado mostrando tela do portal — formato 9:16</div>
+      <div class="chi">VSL gravado (3–4 min) — formato 16:9 horizontal</div>
+      <div class="chi">Vídeo boas-vindas gravado (1–2 min) — formato 16:9</div>
+      <div class="chi">5–10 fotos com fundo neutro (vai na landing page)</div>
+      <div class="chi">Todos os arquivos transferidos para Google Drive antes de sair</div>
+    </div>
+  </div></div>
+  <div class="tp" id="p-t03-b"><div class="tpc">
+    <div class="ig">
+      <dl class="ic"><dt>Câmera</dt><dd>Celular com boa câmera (iPhone 12+ ou equivalente). Modo vídeo 1080p ou 4K, 30fps.</dd></dl>
+      <dl class="ic"><dt>Áudio</dt><dd>Microfone de lapela com fio (~R$30 Shopee). Crucial — áudio ruim inviabiliza o vídeo inteiro.</dd></dl>
+      <dl class="ic"><dt>Iluminação</dt><dd>Janela grande de frente para o André (luz natural). Se não tiver, Ring light de R$60 resolve.</dd></dl>
+      <dl class="ic"><dt>Fundo</dt><dd>Parede branca, cinza ou bege. Sem quadros, sem bagunça. Cozinha organizada também funciona.</dd></dl>
+    </div>
+    <div class="al al-y"><strong>Hook C:</strong> Precisa de uma segunda pessoa segurando o celular do André para mostrar a tela do portal. Ou grave a tela separada e sobreponha na edição no CapCut.</div>
+  </div></div>
+</div></div>
+
+<!-- T04 -->
+<div class="tc" id="t04"><div class="tlb" style="background:var(--red)"></div>
+<div class="tt" onclick="tog('t04')">
+  <div class="tcb" onclick="event.stopPropagation();chk('t04')">✓</div>
+  <div style="flex:1;min-width:0">
+    <div class="tm"><span class="td-day">D6–8</span><span class="td-area" style="background:var(--rd);color:var(--red)">Audiovisual</span><span class="td-time">⏱ 4–6h total</span></div>
+    <div class="tt-title">Editar os vídeos no CapCut — legenda automática, cortes e logo</div>
+    <div class="tt-desc">CapCut gratuito no celular e PC. Prioridade: hooks primeiro (para os anúncios). VSL e boas-vindas podem vir um dia depois.</div>
+  </div>
+  <button class="tog">Abrir</button>
+</div>
+<div class="tb" id="b-t04">
+  <div class="ctabs">
+    <button class="ctab active" onclick="tab(this,'p-t04-a')">Passo a passo CapCut</button>
+    <button class="ctab" onclick="tab(this,'p-t04-b')">Checklist de entrega</button>
+  </div>
+  <div class="tp active" id="p-t04-a"><div class="tpc">
+    <div class="sl">
+      <div class="si"><div class="sn" style="background:var(--red)">1</div><div class="sb"><h4>Importar e acertar proporção</h4><p>CapCut → Novo projeto → importe o vídeo. Para hooks: "..." → Proporção → 9:16. Para VSL: manter 16:9.</p></div></div>
+      <div class="si"><div class="sn" style="background:var(--red)">2</div><div class="sb"><h4>Auto-legendas</h4><p>"Texto" na barra inferior → "Auto-legendas" → Português → Gerar. Selecione todas → fonte Bold, cor branca, contorno preto 2px, tamanho 80–90.</p></div></div>
+      <div class="si"><div class="sn" style="background:var(--red)">3</div><div class="sb"><h4>Cortar vícios e silêncios</h4><p>Assista inteiro. Corte: "éh", "né", "tipo", pausas longas, começos de frase refeitos. O vídeo precisa fluir rápido — sem respiros desnecessários.</p></div></div>
+      <div class="si"><div class="sn" style="background:var(--red)">4</div><div class="sb"><h4>Adicionar logo</h4><p>"Sobreposição" → "Adicionar sobreposição" → importe PNG do logo com fundo transparente → canto superior → tamanho 10–15% da tela.</p></div></div>
+      <div class="si"><div class="sn" style="background:var(--red)">5</div><div class="sb"><h4>Exportar em 1080p</h4><p>Botão exportar → Resolução: 1080p → Taxa: 60fps. Nomes: <code>hook_a.mp4</code>, <code>hook_b.mp4</code>, <code>hook_c.mp4</code>, <code>vsl.mp4</code>, <code>boas_vindas.mp4</code>.</p></div></div>
+    </div>
+  </div></div>
+  <div class="tp" id="p-t04-b"><div class="tpc">
+    <div class="chl">
+      <div class="chi">hook_a.mp4 — 9:16, legenda Bold branca, logo, sem vícios</div>
+      <div class="chi">hook_b.mp4 — 9:16, legenda Bold branca, logo, sem vícios</div>
+      <div class="chi">hook_c.mp4 — 9:16, legenda Bold branca, logo, sem vícios</div>
+      <div class="chi">vsl.mp4 — 16:9, legenda, logo</div>
+      <div class="chi">boas_vindas.mp4 — 16:9, legenda</div>
+      <div class="chi">Todos enviados para pasta "Criativos" no Google Drive</div>
+    </div>
+  </div></div>
+</div></div>
+
+<!-- T05 -->
+<div class="tc" id="t05"><div class="tlb" style="background:var(--red)"></div>
+<div class="tt" onclick="tog('t05')">
+  <div class="tcb" onclick="event.stopPropagation();chk('t05')">✓</div>
+  <div style="flex:1;min-width:0">
+    <div class="tm"><span class="td-day">D3–7</span><span class="td-area" style="background:var(--rd);color:var(--red)">Produto</span><span class="td-time">⏱ 4–6h</span></div>
+    <div class="tt-title">Diagramar o e-book no Canva — 12 páginas com identidade visual</div>
+    <div class="tt-desc">O conteúdo já existe no PDF do André. Sua função: formatar, aplicar cores e deixar visualmente profissional. Pode rodar em paralelo com a edição dos vídeos.</div>
+  </div>
+  <button class="tog">Abrir</button>
+</div>
+<div class="tb" id="b-t05">
+  <div class="ctabs">
+    <button class="ctab active" onclick="tab(this,'p-t05-a')">Layout e estrutura</button>
+    <button class="ctab" onclick="tab(this,'p-t05-b')">Cores + texto da capa</button>
+  </div>
+  <div class="tp active" id="p-t05-a"><div class="tpc">
+    <div class="sl">
+      <div class="si"><div class="sn" style="background:var(--red)">1</div><div class="sb"><h4>Canva → Criar design → A4 (210×297mm)</h4><p>Pesquise "ebook cover" nos templates. Escolha um template escuro ou vermelho e edite em cima. Crie 12 páginas: 1 capa + 1 sumário + 10 capítulos.</p></div></div>
+      <div class="si"><div class="sn" style="background:var(--red)">2</div><div class="sb"><h4>Layout padrão de cada capítulo</h4><p>Topo: barra vermelha com "PONTO 01 | TELA DE DESEMPENHO" · Título grande · Subtítulo de impacto · Corpo: O QUE É / POR QUE IMPORTA / COMO USAR · Rodapé: caixa escura com META + nº do indicador + logo + nº de página.</p></div></div>
+      <div class="si"><div class="sn" style="background:var(--red)">3</div><div class="sb"><h4>Revisão editorial antes de exportar</h4><p>Verificar: ortografia padronizada, negrito apenas em termos-chave, cada seção com título + explicação + como usar + resumo. Fontes: Montserrat Bold para títulos, Open Sans para corpo.</p></div></div>
+    </div>
+  </div></div>
+  <div class="tp" id="p-t05-b"><div class="tpc">
+    <div class="cb"><div class="ch" style="background:#1a0200"><span class="cl">Paleta de cores — cole no campo "cor personalizada" do Canva</span><button class="cp" onclick="cp(this)">Copiar</button></div>
+<div class="cv">VERMELHO PRINCIPAL  →  #C8341A   (barras de seção, botões, destaques)
+AMARELO DESTAQUE    →  #F5C840   (números-meta, CTAs, ícones de alerta)
+FUNDO ESCURO        →  #1A1209   (capa, cabeçalhos)
+FUNDO CLARO         →  #FAFAF8   (páginas de conteúdo)
+TEXTO PRINCIPAL     →  #1A1209
+TEXTO SECUNDÁRIO    →  #6E6558
+BORDA / SEPARADOR   →  #E0D9CC</div></div>
+    <div class="cb" style="margin-top:12px"><div class="ch" style="background:#1a0200"><span class="cl">Texto da capa — copie exatamente para o Canva</span><button class="cp" onclick="cp(this)">Copiar</button></div>
+<div class="cv">GUIA DE BOAS PRÁTICAS
+PORTAL DO IFOOD
+
+Os 10 pontos que você precisa
+usar todos os dias para vender
+mais — com mais margem.
+
+André Beleza
+Dominando Delivery</div></div>
+  </div></div>
+</div></div>
+
+<!-- T06 -->
+<div class="tc" id="t06"><div class="tlb" style="background:var(--red)"></div>
+<div class="tt" onclick="tog('t06')">
+  <div class="tcb" onclick="event.stopPropagation();chk('t06')">✓</div>
+  <div style="flex:1;min-width:0">
+    <div class="tm"><span class="td-day">DIA 7</span><span class="td-area" style="background:var(--rd);color:var(--red)">Produto</span><span class="td-time">⏱ 1h</span></div>
+    <div class="tt-title">Exportar PDF final + criar mockup 3D no Smartmockups</div>
+    <div class="tt-desc">Dois arquivos críticos: o PDF que vai ser entregue ao comprador, e o mockup que vai em anúncios, landing page e posts.</div>
+  </div>
+  <button class="tog">Abrir</button>
+</div>
+<div class="tb" id="b-t06">
+  <div class="ctabs"><button class="ctab active" onclick="tab(this,'p-t06-a')">Passo a passo</button></div>
+  <div class="tp active" id="p-t06-a"><div class="tpc">
+    <div class="sl">
+      <div class="si"><div class="sn" style="background:var(--red)">1</div><div class="sb"><h4>Exportar do Canva em duas versões</h4><p>Compartilhar → Baixar → <strong>PDF para impressão</strong> (máxima qualidade — esse é o entregável). Baixar também em <strong>PDF padrão</strong> (menor, para preview de 2 páginas na LP).</p></div></div>
+      <div class="si"><div class="sn" style="background:var(--red)">2</div><div class="sb"><h4>Criar mockup 3D no Smartmockups</h4><p>Acesse <code>smartmockups.com</code> (gratuito). Pesquise "ebook". Faça upload da capa em PNG. Baixe: PNG fundo branco + PNG fundo transparente. Você vai precisar dos dois.</p></div></div>
+      <div class="si"><div class="sn" style="background:var(--red)">3</div><div class="sb"><h4>Organizar pasta de entregáveis no Google Drive</h4><p>Pasta "DD / Guia R$17 / Entregáveis": <code>guia-ifood-FINAL.pdf</code> · <code>guia-ifood-preview.pdf</code> · <code>mockup-branco.png</code> · <code>mockup-transparente.png</code> · subpasta "Criativos de vídeo".</p></div></div>
+    </div>
+  </div></div>
+</div></div>
+
+</div><!-- /tw fase 1 -->
+
+<!-- ══ FASE 2: INFRAESTRUTURA ══ -->
+<div class="sp"></div>
+<div class="fw">
+  <div class="fh">
+    <div class="fbar" style="background:var(--orn)"></div>
+    <div class="fi">
+      <div class="fn" style="color:var(--orn)">Fase 02</div>
+      <div class="ft">Infraestrutura</div>
+      <div class="fd">Dias 8–11 · Kiwify, pixel, e-mails automáticos. Tudo configurado e testado antes de ligar o tráfego.</div>
+    </div>
+    <div class="fc" style="background:var(--od);color:var(--orn)">4 tarefas</div>
+  </div>
+</div>
+<div class="tw">
+
+<!-- T07 -->
+<div class="tc" id="t07"><div class="tlb" style="background:var(--orn)"></div>
+<div class="tt" onclick="tog('t07')">
+  <div class="tcb" onclick="event.stopPropagation();chk('t07')">✓</div>
+  <div style="flex:1;min-width:0">
+    <div class="tm"><span class="td-day">DIA 8</span><span class="td-area" style="background:var(--od);color:var(--orn)">Kiwify</span><span class="td-time">⏱ 1–2h</span></div>
+    <div class="tt-title">Criar produto na Kiwify + configurar entrega automática do PDF</div>
+    <div class="tt-desc">Produto digital R$17, upload do PDF, e-mail de entrega automático. Teste antes de avançar.</div>
+  </div>
+  <button class="tog">Abrir</button>
+</div>
+<div class="tb" id="b-t07">
+  <div class="ctabs"><button class="ctab active" onclick="tab(this,'p-t07-a')">Passo a passo Kiwify</button></div>
+  <div class="tp active" id="p-t07-a"><div class="tpc">
+    <div class="sl">
+      <div class="si"><div class="sn" style="background:var(--orn)">1</div><div class="sb"><h4>Criar o produto</h4><p>Kiwify → "Meus Produtos" → "Criar Produto" → "Produto Digital". Nome: <strong>Guia de Boas Práticas iFood</strong>. Preço: R$17,00. Tipo: E-book (PDF). Upload do <code>guia-ifood-FINAL.pdf</code>.</p></div></div>
+      <div class="si"><div class="sn" style="background:var(--orn)">2</div><div class="sb"><h4>Configurar entrega automática</h4><p>Aba "Entrega" → selecione o arquivo PDF. O Kiwify envia automaticamente por e-mail após confirmação do pagamento. Personalize o texto do e-mail usando o E-mail 1 da Tarefa 10.</p></div></div>
+      <div class="si"><div class="sn" style="background:var(--orn)">3</div><div class="sb"><h4>Testar a compra</h4><p>Use o cartão de teste da própria Kiwify (disponível nas configurações) ou crie um produto de R$1 temporariamente. Verifique: e-mail chegou, PDF abre, link não expirou.</p></div></div>
+    </div>
+  </div></div>
+</div></div>
+
+<!-- T08 -->
+<div class="tc" id="t08"><div class="tlb" style="background:var(--orn)"></div>
+<div class="tt" onclick="tog('t08')">
+  <div class="tcb" onclick="event.stopPropagation();chk('t08')">✓</div>
+  <div style="flex:1;min-width:0">
+    <div class="tm"><span class="td-day">DIA 9</span><span class="td-area" style="background:var(--od);color:var(--orn)">Funil</span><span class="td-time">⏱ 1–2h</span></div>
+    <div class="tt-title">Configurar Order Bump (R$27) + Upsell OTO (R$97)</div>
+    <div class="tt-desc">Dois produtos extras que aumentam o ticket médio sem custo adicional de tráfego. Meta: 25% de take rate no OB, 10% no OTO.</div>
+  </div>
+  <button class="tog">Abrir</button>
+</div>
+<div class="tb" id="b-t08">
+  <div class="ctabs">
+    <button class="ctab active" onclick="tab(this,'p-t08-a')">Configuração</button>
+    <button class="ctab" onclick="tab(this,'p-t08-b')">Textos prontos</button>
+  </div>
+  <div class="tp active" id="p-t08-a"><div class="tpc">
+    <div class="ig">
+      <dl class="ic"><dt>Order Bump</dt><dd>Aparece dentro do checkout, antes do pagamento. R$27. 1 clique — sem redigitar cartão.</dd></dl>
+      <dl class="ic"><dt>Upsell OTO</dt><dd>Aparece imediatamente após a compra. Curso completo com desconto: R$97 de R$197. 1 clique.</dd></dl>
+    </div>
+    <div class="sl">
+      <div class="si"><div class="sn" style="background:var(--orn)">1</div><div class="sb"><h4>Order Bump na Kiwify</h4><p>Seu produto → aba "Order Bump" → "Adicionar Bump". Crie o produto "Planilha de Controle de Margem" por R$27. Cole o texto da próxima aba.</p></div></div>
+      <div class="si"><div class="sn" style="background:var(--orn)">2</div><div class="sb"><h4>Upsell OTO</h4><p>Kiwify → "Funil de Vendas" → "Adicionar Upsell". Produto: curso com desconto R$97. Cole o texto da página OTO na próxima aba.</p></div></div>
+    </div>
+  </div></div>
+  <div class="tp" id="p-t08-b"><div class="tpc">
+    <div class="cb"><div class="ch" style="background:#1a0a00"><span class="cl">Texto do Order Bump — cole na Kiwify</span><button class="cp" onclick="cp(this)">Copiar</button></div>
+<div class="cv">TÍTULO: ⚡ Adicione a Planilha de Controle de Margem por apenas R$27
+
+DESCRIÇÃO:
+Enquanto o guia te ensina ONDE olhar, a planilha te mostra OS NÚMEROS.
+Calcule o CMV real de cada prato, o lucro por pedido e a margem de cada promoção — em segundos.
+
+→ Planilha em Excel editável
+→ Pré-configurada para delivery no iFood
+→ Instruções em vídeo incluídas (5 min)
+
+Normalmente R$47. Só R$27 agora — com 1 clique, sem digitar cartão de novo.</div></div>
+    <div class="cb" style="margin-top:12px"><div class="ch" style="background:#1a0a00"><span class="cl">Texto da página OTO — cole na Kiwify</span><button class="cp" onclick="cp(this)">Copiar</button></div>
+<div class="cv">HEADLINE:
+Espera! Você acabou de dar o primeiro passo certo.
+Agora deixa eu te mostrar o caminho completo.
+
+SUBHEADLINE:
+O Guia que você acabou de comprar te diz O QUE fazer no portal do iFood.
+O Dominando Delivery te ensina TUDO: cardápio, operação, tráfego, gestão financeira e escala.
+
+O QUE VOCÊ GANHA:
+✓ Fundamentos e Produto-Mercado — encontre seu cliente ideal
+✓ Cardápio e Engenharia de Combos — transforme seu cardápio em máquina de lucro
+✓ iFood Growth — domine o algoritmo e saia do anonimato
+✓ Operação Enxuta — entregas em até 20 minutos
+✓ Retenção e Pós-venda — transforme clientes em recorrentes
+✓ Escala e Governança — cresça sem perder o controle
+
+OFERTA EXCLUSIVA PARA QUEM JÁ COMPROU O GUIA:
+De R$197 por apenas R$97 — somente nessa página, com 1 clique.
+
+[BOTÃO VERDE] SIM, QUERO O MÉTODO COMPLETO POR R$97 →
+[LINK DISCRETO] Não, obrigado. Vou ficar só com o guia por enquanto.</div></div>
+  </div></div>
+</div></div>
+
+<!-- T09 -->
+<div class="tc" id="t09"><div class="tlb" style="background:var(--orn)"></div>
+<div class="tt" onclick="tog('t09')">
+  <div class="tcb" onclick="event.stopPropagation();chk('t09')">✓</div>
+  <div style="flex:1;min-width:0">
+    <div class="tm"><span class="td-day">DIA 9</span><span class="td-area" style="background:var(--od);color:var(--orn)">Pixel</span><span class="td-time">⏱ 45min</span></div>
+    <div class="tt-title">Instalar Pixel Meta + API de Conversões na Kiwify</div>
+    <div class="tt-desc">A tarefa mais técnica — e a mais crítica. Sem o evento "Purchase" disparando, o Meta não aprende e o dinheiro dos anúncios vai ralo.</div>
+  </div>
+  <button class="tog">Abrir</button>
+</div>
+<div class="tb" id="b-t09">
+  <div class="ctabs"><button class="ctab active" onclick="tab(this,'p-t09-a')">Passo a passo</button></div>
+  <div class="tp active" id="p-t09-a"><div class="tpc">
+    <div class="al al-r"><strong>Regra absoluta:</strong> Não crie nenhuma campanha antes de validar o evento "Purchase" no Events Manager. Confirme que aparece na atividade de teste antes de qualquer anúncio.</div>
+    <div class="sl">
+      <div class="si"><div class="sn" style="background:var(--orn)">1</div><div class="sb"><h4>Criar o Pixel no Meta Business Suite</h4><p><code>business.facebook.com</code> → Events Manager → "Pixels" → "Criar Pixel". Nome sugerido: "DD Guia iFood". Copie o ID do pixel (número de 15 dígitos).</p></div></div>
+      <div class="si"><div class="sn" style="background:var(--orn)">2</div><div class="sb"><h4>Colar o ID na Kiwify</h4><p>Kiwify → "Configurações" → "Pixels e Rastreamento" → "Meta Pixel" → cole o ID. Ative também "API de Conversões" → gere o token de acesso no Meta e cole na Kiwify.</p></div></div>
+      <div class="si"><div class="sn" style="background:var(--orn)">3</div><div class="sb"><h4>Validar os 3 eventos obrigatórios</h4><p>Faça uma compra teste. No Events Manager → "Atividade de Teste" → você deve ver: <strong>PageView → InitiateCheckout → Purchase</strong>. Só prossiga se os 3 aparecerem.</p></div></div>
+    </div>
+  </div></div>
+</div></div>
+
+<!-- T10 -->
+<div class="tc" id="t10"><div class="tlb" style="background:var(--orn)"></div>
+<div class="tt" onclick="tog('t10')">
+  <div class="tcb" onclick="event.stopPropagation();chk('t10')">✓</div>
+  <div style="flex:1;min-width:0">
+    <div class="tm"><span class="td-day">DIA 10</span><span class="td-area" style="background:var(--od);color:var(--orn)">E-mails</span><span class="td-time">⏱ 1–2h</span></div>
+    <div class="tt-title">Configurar sequência de 5 e-mails automáticos pós-compra</div>
+    <div class="tt-desc">Uma vez configurada, roda sozinha para sempre. Transforma comprador em fã e gera upsell passivo no D+5 sem trabalho adicional.</div>
+  </div>
+  <button class="tog">Abrir</button>
+</div>
+<div class="tb" id="b-t10">
+  <div class="ctabs">
+    <button class="ctab active" onclick="tab(this,'p-t10-a')">E-mail 1 · Imediato</button>
+    <button class="ctab" onclick="tab(this,'p-t10-b')">E-mail 2 · D+1</button>
+    <button class="ctab" onclick="tab(this,'p-t10-c')">E-mail 3 · D+3</button>
+    <button class="ctab" onclick="tab(this,'p-t10-d')">E-mail 4 · D+5</button>
+    <button class="ctab" onclick="tab(this,'p-t10-e')">E-mail 5 · D+7</button>
+  </div>
+  <div class="tp active" id="p-t10-a"><div class="tpc">
+    <div class="al al-y"><strong>Ferramenta:</strong> Systeme.io (gratuito até 2.000 contatos) ou o próprio Kiwify. Configure automação que dispara após confirmação de pagamento.</div>
+    <div class="cb"><div class="ch" style="background:#001a0a"><span class="cl">E-mail 1 — Boas-vindas · Disparo imediato</span><button class="cp" onclick="cp(this)">Copiar</button></div>
+<div class="cv">ASSUNTO: Seu guia está aqui ✅ — Dominando Delivery
+
+Olá, [NOME]!
+
+Que bom ter você aqui.
+
+Seu acesso ao Guia de Boas Práticas iFood está pronto.
+Clique no link abaixo para baixar o PDF:
+
+→ [LINK DO PDF AQUI]
+
+Uma dica para começar:
+Abra o portal do iFood agora e vá direto para a Tela de Desempenho.
+Leia o capítulo 1 do guia — são 5 minutos que vão mudar como você enxerga seu delivery.
+
+Qualquer dúvida, me responde esse e-mail.
+
+André Beleza
+Dominando Delivery</div></div>
+  </div></div>
+  <div class="tp" id="p-t10-b"><div class="tpc">
+    <div class="cb"><div class="ch" style="background:#001a0a"><span class="cl">E-mail 2 — Quick Win · D+1</span><button class="cp" onclick="cp(this)">Copiar</button></div>
+<div class="cv">ASSUNTO: O número mais importante do seu iFood (a maioria nunca viu)
+
+Oi [NOME],
+
+Uma pergunta direta:
+
+Você sabe qual é a sua taxa de conversão de cardápio no iFood?
+
+Vai lá no portal → Tela de Desempenho → aba Cardápio.
+Você vai ver: visitas → visualizações → sacola → concluído.
+
+A meta saudável é: 12% das visitas virarem pedido.
+
+Se você estiver abaixo disso, o capítulo 1 e o capítulo 9 do guia
+explicam exatamente o que está travando esse número — e como corrigir.
+
+Esse é o tipo de dado que, quando você começa a monitorar,
+muda sua operação em semanas.
+
+Qualquer resultado que você encontrar, me conta.
+
+André</div></div>
+  </div></div>
+  <div class="tp" id="p-t10-c"><div class="tpc">
+    <div class="cb"><div class="ch" style="background:#001a0a"><span class="cl">E-mail 3 — Prova social · D+3</span><button class="cp" onclick="cp(this)">Copiar</button></div>
+<div class="cv">ASSUNTO: O que aconteceu quando o Marcos foi na aba Financeiro pela primeira vez
+
+Oi [NOME],
+
+Recebo mensagens assim toda semana:
+
+"André, fui na aba Financeiro do portal seguindo o capítulo 3 do guia.
+Encontrei uma diferença de repasse que o iFood estava me devendo.
+Abri chamado no mesmo dia e recuperei o valor."
+— Marcos T., dark kitchen, Goiânia
+
+Isso acontece mais do que parece.
+O iFood é uma plataforma enorme — erros de repasse existem.
+E você só descobre se conferir.
+
+O capítulo 3 do seu guia explica como fazer essa conferência
+em menos de 10 minutos por semana.
+
+Se você ainda não leu essa parte, vale muito.
+
+André</div></div>
+  </div></div>
+  <div class="tp" id="p-t10-d"><div class="tpc">
+    <div class="cb"><div class="ch" style="background:#001a0a"><span class="cl">E-mail 4 — Cross-sell · D+5</span><button class="cp" onclick="cp(this)">Copiar</button></div>
+<div class="cv">ASSUNTO: Você quer o método completo? (oferta exclusiva)
+
+Oi [NOME],
+
+O guia que você comprou resolve o dia a dia do portal do iFood.
+
+Mas se você quer ir além — cardápio que vende mais, operação que não atrasa,
+clientes que voltam sem cupom, margem que cresce — existe o próximo passo.
+
+O Dominando Delivery é o método completo.
+São 6 módulos que cobrem tudo que aprendi em 13 anos
+operando restaurantes que hoje fazem 15.000 pedidos por mês.
+
+Para quem já tem o guia, tenho uma condição especial:
+R$197 por R$97 — somente por esse link, válido por 48 horas.
+
+→ [LINK ESPECIAL DO CURSO AQUI]
+
+Se tiver alguma dúvida sobre o curso, responde esse e-mail.
+
+André</div></div>
+  </div></div>
+  <div class="tp" id="p-t10-e"><div class="tpc">
+    <div class="cb"><div class="ch" style="background:#001a0a"><span class="cl">E-mail 5 — Reengajamento · D+7</span><button class="cp" onclick="cp(this)">Copiar</button></div>
+<div class="cv">ASSUNTO: Última chance — e uma pergunta importante
+
+Oi [NOME],
+
+Faz 7 dias desde que você recebeu o guia.
+
+Uma pergunta direta: você já aplicou algum dos 10 pontos no seu delivery?
+
+Se sim — ótimo. Me conta o que aconteceu.
+Se ainda não — qual está sendo o maior obstáculo?
+
+Às vezes é falta de tempo, às vezes é dúvida de como fazer,
+às vezes é simplesmente difícil começar.
+
+Se você precisar de ajuda com algum ponto específico,
+responde esse e-mail e eu te ajudo.
+
+E caso você ainda esteja pensando no curso completo —
+a oferta de R$97 encerra hoje à meia-noite.
+
+→ [LINK DO CURSO AQUI]
+
+Estou aqui.
+
+André</div></div>
+  </div></div>
+</div></div>
+
+<!-- T10b -->
+<div class="tc" id="t10b"><div class="tlb" style="background:var(--orn)"></div>
+<div class="tt" onclick="tog('t10b')">
+  <div class="tcb" onclick="event.stopPropagation();chk('t10b')">✓</div>
+  <div style="flex:1;min-width:0">
+    <div class="tm"><span class="td-day">DIA 10</span><span class="td-area" style="background:var(--od);color:var(--orn)">WhatsApp</span><span class="td-time">⏱ 30min</span></div>
+    <div class="tt-title">Criar e configurar o Grupo VIP WhatsApp — bônus pós-compra</div>
+    <div class="tt-desc">O grupo entra como bônus surpresa — André menciona no vídeo de boas-vindas. Objetivo: suporte, conteúdo exclusivo semanal e aquecimento para o curso R$197.</div>
+  </div>
+  <button class="tog">Abrir</button>
+</div>
+<div class="tb" id="b-t10b">
+  <div class="ctabs">
+    <button class="ctab active" onclick="tab(this,'p-t10b-a')">Configurar o grupo</button>
+    <button class="ctab" onclick="tab(this,'p-t10b-b')">Roteiro — vídeo boas-vindas</button>
+    <button class="ctab" onclick="tab(this,'p-t10b-c')">Regras do grupo</button>
+    <button class="ctab" onclick="tab(this,'p-t10b-d')">Conteúdo semanal</button>
+  </div>
+
+  <div class="tp active" id="p-t10b-a"><div class="tpc">
+    <div class="al al-y"><strong>Como funciona:</strong> André menciona o grupo no vídeo de boas-vindas (gravado na Tarefa 03). O comprador entra pelo link fixo do grupo — sem precisar de aprovação manual.</div>
+    <div class="sl">
+      <div class="si"><div class="sn" style="background:var(--orn)">1</div><div class="sb"><h4>Criar o grupo no WhatsApp</h4><p>Abra o WhatsApp → "Novo grupo" → adicione ao menos 1 contato para criar → nomeie: <strong>Dominando Delivery · Guia iFood</strong>. Foto do grupo: logo do Dominando Delivery.</p></div></div>
+      <div class="si"><div class="sn" style="background:var(--orn)">2</div><div class="sb"><h4>Gerar o link de convite fixo</h4><p>Dentro do grupo → toque no nome do grupo → "Link de convite" → "Copiar link". Esse link vai no vídeo de boas-vindas e nunca muda — não resete o link depois que estiver no ar.</p></div></div>
+      <div class="si"><div class="sn" style="background:var(--orn)">3</div><div class="sb"><h4>Configurar permissões</h4><p>Configurações do grupo → apenas administradores podem enviar mensagens. Isso evita spam e mantém a qualidade do grupo. Membros podem responder em threads.</p></div></div>
+      <div class="si"><div class="sn" style="background:var(--orn)">4</div><div class="sb"><h4>Fixar a mensagem de boas-vindas</h4><p>Assim que o grupo estiver criado, envie a mensagem de boas-vindas abaixo e fixe no topo. Todo novo membro vai ver assim que entrar.</p></div></div>
+    </div>
+    <div class="cb" style="margin-top:16px"><div class="ch" style="background:#1a0a00"><span class="cl">Mensagem de boas-vindas — fixar no topo do grupo</span><button class="cp" onclick="cp(this)">Copiar</button></div>
+<div class="cv">Bem-vindo ao Grupo VIP do Guia de Boas Práticas iFood! 🎉
+
+Aqui é o André Beleza — Dominando Delivery.
+
+Esse é um espaço exclusivo para quem comprou o guia.
+
+O que você vai encontrar aqui:
+✅ Respostas diretas para suas dúvidas sobre o portal do iFood
+✅ Dica exclusiva toda semana sobre os 10 pontos do guia
+✅ Primeiros a saber de novidades e conteúdos do Dominando Delivery
+
+Regras simples:
+→ Respeito sempre
+→ Dúvidas sobre o guia e o iFood são bem-vindas
+→ Sem links externos ou divulgação de outros produtos
+
+Comece pelo capítulo 1 — Tela de Desempenho.
+Qualquer dúvida, manda aqui. Eu leio tudo.
+
+André 👊</div></div>
+  </div></div>
+
+  <div class="tp" id="p-t10b-b"><div class="tpc">
+    <div class="al al-y"><strong>Inserir no roteiro do vídeo de boas-vindas (Tarefa 02):</strong> Adicione esse trecho logo após a dica de como usar o guia, antes do encerramento. André grava uma vez — funciona para sempre.</div>
+    <div class="cb"><div class="ch" style="background:#1a0a00"><span class="cl">Trecho para inserir no vídeo de boas-vindas</span><button class="cp" onclick="cp(this)">Copiar</button></div>
+<div class="cv">"Ah, e tem mais uma coisa que eu quero te dar de presente.
+
+Criei um grupo exclusivo no WhatsApp
+só para quem comprou o guia.
+
+Lá dentro eu respondo dúvidas sobre os 10 pontos,
+mando uma dica nova toda semana
+e você vai ser o primeiro a saber de tudo que está por vir aqui no Dominando Delivery.
+
+O link está na descrição desse vídeo — ou no e-mail que você recebeu.
+
+Te espero lá!"</div></div>
+    <div class="al al-g" style="margin-top:12px"><strong>Onde colocar o link:</strong> Na descrição do vídeo de boas-vindas (se estiver hospedado no YouTube/Vimeo) E no e-mail de boas-vindas — adicione uma linha ao final: <em>"→ Entre no Grupo VIP WhatsApp: [LINK DO GRUPO]"</em></div>
+  </div></div>
+
+  <div class="tp" id="p-t10b-c"><div class="tpc">
+    <div class="cb"><div class="ch" style="background:#1a0a00"><span class="cl">Regras do grupo — versão completa para fixar ou enviar quando necessário</span><button class="cp" onclick="cp(this)">Copiar</button></div>
+<div class="cv">📋 REGRAS DO GRUPO VIP — DOMINANDO DELIVERY
+
+1. Esse grupo é exclusivo para compradores do Guia de Boas Práticas iFood.
+
+2. Dúvidas sobre o portal do iFood e os 10 pontos do guia são sempre bem-vindas.
+
+3. Respeito mútuo. Sem julgamentos de perguntas "básicas" — todo mundo começa em algum lugar.
+
+4. Sem spam, links externos, divulgação de outros produtos ou grupos.
+
+5. Apenas administradores enviam mensagens gerais. Dúvidas e respostas são feitas em threads.
+
+6. O André lê todas as perguntas e responde no mínimo 2x por semana.
+
+Quem não respeitar as regras será removido sem aviso prévio.
+
+Obrigado por fazer parte disso 🙏</div></div>
+  </div></div>
+
+  <div class="tp" id="p-t10b-d"><div class="tpc">
+    <div class="al al-y"><strong>Cadência recomendada:</strong> 1 mensagem por semana, toda segunda-feira de manhã. Cada mensagem é baseada em um dos 10 capítulos do guia — funciona como reforço do conteúdo e aquecimento para o curso.</div>
+    <div class="cb"><div class="ch" style="background:#1a0a00"><span class="cl">4 semanas de conteúdo pronto — copie e agende</span><button class="cp" onclick="cp(this)">Copiar</button></div>
+<div class="cv">SEMANA 1 — Segunda-feira
+"Dica da semana 💡
+
+Você já foi na Tela de Desempenho essa semana?
+
+Tem uma métrica lá que a maioria ignora: a taxa de cliques no cardápio.
+Ela mede quantas pessoas que viram seu restaurante clicaram para ver o cardápio.
+
+A média saudável é acima de 8%.
+Se você estiver abaixo disso, o problema não é o produto — é a vitrine.
+
+Foto de capa do restaurante, nome da loja e primeiros itens do cardápio.
+São esses 3 que definem se o cliente clica ou passa direto.
+
+Vai lá conferir o seu número e me conta aqui 👇"
+
+---
+
+SEMANA 2 — Segunda-feira
+"Dica da semana 💡
+
+Hoje é sobre avaliações — o capítulo 4 do guia.
+
+Sabia que responder avaliações negativas em até 24h
+é um dos critérios do Super Restaurante?
+
+E que restaurantes com selo Super aparecem mais vezes no topo do feed do iFood?
+
+A regra é simples: responda tudo, sem exceção.
+Para as negativas: agradeça, reconheça o problema e mostre que vai melhorar.
+Sem desculpa, sem discussão.
+
+Clientes futuros leem essas respostas antes de pedir. Eles julgam você pela resposta, não só pela nota.
+
+Quanto tempo você leva para responder as suas avaliações hoje?"
+
+---
+
+SEMANA 3 — Segunda-feira
+"Dica da semana 💡
+
+Essa semana: promoções — capítulo 7.
+
+Antes de criar qualquer promoção no iFood, responda essa pergunta:
+Esse desconto sai do meu bolso ou do iFood?
+
+No portal → Promoções → você consegue ver exatamente isso.
+Incentivo iFood = iFood paga.
+Incentivo da Loja = você paga.
+
+Muita gente empilha os dois sem perceber que está bancando o desconto do próprio bolso.
+
+Essa semana: entre no portal, abra suas promoções ativas e confira quem está pagando cada desconto.
+Me conta o que você encontrou 👇"
+
+---
+
+SEMANA 4 — Segunda-feira
+"Dica da semana 💡 + convite especial
+
+Chegamos na semana 4 do grupo — e quero te contar algo.
+
+Tudo que você aprendeu aqui — portal, promoções, avaliações, cardápio —
+é a base do método completo que uso nas minhas operações.
+
+O Dominando Delivery vai além: cardápio estratégico, operação, retenção, escala.
+E para quem está nesse grupo, tenho uma condição especial essa semana.
+
+Manda mensagem aqui no privado com 'QUERO SABER MAIS'
+que te passo os detalhes pessoalmente.
+
+Obrigado por estar aqui — foi uma honra essa troca com vocês 🙏"</div></div>
+  </div></div>
+
+</div></div>
+
+</div><!-- /tw fase 2 -->
+
+<!-- ══ FASE 3: LANDING PAGE ══ -->
+<div class="sp"></div>
+<div class="fw">
+  <div class="fh">
+    <div class="fbar" style="background:var(--blu)"></div>
+    <div class="fi">
+      <div class="fn" style="color:var(--blu)">Fase 03</div>
+      <div class="ft">Landing Page</div>
+      <div class="fd">Dias 10–11 · Publicar e testar o funil completo. Só avança para o tráfego quando tudo funcionar de ponta a ponta.</div>
+    </div>
+    <div class="fc" style="background:var(--bd);color:var(--blu)">2 tarefas</div>
+  </div>
+</div>
+<div class="tw">
+
+<!-- T11 -->
+<div class="tc" id="t11"><div class="tlb" style="background:var(--blu)"></div>
+<div class="tt" onclick="tog('t11')">
+  <div class="tcb" onclick="event.stopPropagation();chk('t11')">✓</div>
+  <div style="flex:1;min-width:0">
+    <div class="tm"><span class="td-day">DIA 10</span><span class="td-area" style="background:var(--bd);color:var(--blu)">Landing Page</span><span class="td-time">⏱ 30min</span></div>
+    <div class="tt-title">Publicar a landing page no Vercel — 15 minutos, grátis</div>
+    <div class="tt-desc">O arquivo landing-page.html já está pronto e entregue junto com esse OS. Substitua 3 coisas e suba. A Vercel gera URL pública em 30 segundos.</div>
+  </div>
+  <button class="tog">Abrir</button>
+</div>
+<div class="tb" id="b-t11">
+  <div class="ctabs">
+    <button class="ctab active" onclick="tab(this,'p-t11-a')">Publicar no Vercel</button>
+    <button class="ctab" onclick="tab(this,'p-t11-b')">3 substituições obrigatórias</button>
+    <button class="ctab" onclick="tab(this,'p-t11-c')">Prompt Vibe Code (alternativa)</button>
+  </div>
+  <div class="tp active" id="p-t11-a"><div class="tpc">
+    <div class="sl">
+      <div class="si"><div class="sn" style="background:var(--blu)">1</div><div class="sb"><h4>Fazer as substituições primeiro (ver próxima aba)</h4><p>Abra o landing-page.html no Bloco de Notas ou VS Code. Faça as 3 substituições. Use Ctrl+H para localizar e substituir tudo de uma vez.</p></div></div>
+      <div class="si"><div class="sn" style="background:var(--blu)">2</div><div class="sb"><h4>Renomear para index.html</h4><p>Renomeie o arquivo para <code>index.html</code>. Coloque a foto do André na mesma pasta com o nome exato que você digitou no arquivo.</p></div></div>
+      <div class="si"><div class="sn" style="background:var(--blu)">3</div><div class="sb"><h4>Subir no Vercel</h4><p>Acesse <code>vercel.com</code> → crie conta com Google → "Add New" → "Project" → arraste a pasta com o index.html e a foto → "Deploy". Em 30 segundos: URL ao ar. Esse link vai em todos os anúncios.</p></div></div>
+      <div class="si"><div class="sn" style="background:var(--blu)">4</div><div class="sb"><h4>Instalar o pixel na LP também</h4><p>No HTML, logo antes do <code>&lt;/head&gt;</code>, cole o código base do pixel (disponível no Meta Business → Events Manager → seu pixel → "Instalar manualmente").</p></div></div>
+    </div>
+  </div></div>
+  <div class="tp" id="p-t11-b"><div class="tpc">
+    <div class="cb"><div class="ch" style="background:#000d1a"><span class="cl">3 substituições obrigatórias no arquivo landing-page.html</span><button class="cp" onclick="cp(this)">Copiar</button></div>
+<div class="cv">1. SEU_LINK_KIWIFY_AQUI
+   → substitua pelo link de checkout da Kiwify
+   → aparece 3 vezes no arquivo (botão hero, botão CTA final, sticky mobile)
+
+2. FOTO_DO_ANDRE.jpg
+   → substitua pelo nome do arquivo de foto do André
+   → coloque a foto na mesma pasta do HTML antes de subir
+
+3. [email protected]
+   → substitua pelo e-mail real de suporte
+   → aparece no rodapé
+
+DICA: Use Ctrl+H no Bloco de Notas para substituir tudo de uma vez.</div></div>
+  </div></div>
+  <div class="tp" id="p-t11-c"><div class="tpc">
+    <div class="al al-y"><strong>Use isso se quiser customizar ou recriar a LP do zero</strong> no Bolt.new, Vibe Code ou Lovable.</div>
+    <div class="cb"><div class="ch" style="background:#000d1a"><span class="cl">Prompt completo para Bolt.new / Vibe Code / Lovable</span><button class="cp" onclick="cp(this)">Copiar</button></div>
+<div class="cv">Crie uma landing page de vendas de e-book com as seguintes especificações:
+
+PRODUTO: "Guia de Boas Práticas iFood" — e-book em PDF, R$17
+EXPERT: André Beleza, 13 anos de experiência, 15.000 pedidos/mês
+AVATAR: Donos de restaurante que usam iFood mas não entendem o portal
+
+ESTRUTURA DA PÁGINA (ordem obrigatória):
+1. Barra de urgência vermelha com countdown de 15 minutos
+2. Hero com headline: "Você usa o iFood todos os dias — mas sabe onde o lucro some?"
+3. Subheadline: "Os 10 pontos do portal do iFood que donos de restaurante ignoram — e que custam margem, visibilidade e pedidos todo dia."
+4. Preço em destaque: "De R$47 por R$17" + botão vermelho "QUERO MEU GUIA AGORA"
+5. Seção "Você se reconhece aqui?" com 5 dores em cards
+6. Seção do expert com foto, bio e 4 números (15mil pedidos, 13 anos, 4 marcas, nota 4.7)
+7. Grade com os 10 capítulos do guia (título + 1 linha de descrição cada)
+8. Caixa de resultado prometido vermelha: "Em 10 dias aplicando esses pontos..."
+9. 4 depoimentos em cards
+10. Bônus com valores riscados (Planilha R$47 + Checklist R$27 — ambos GRÁTIS)
+11. Garantia de 7 dias em caixa verde com ícone de escudo
+12. FAQ com 5 perguntas em accordion
+13. CTA final com checklist + preço + botão
+
+CORES: vermelho #C8341A, amarelo #F5C840, fundo escuro #1A1209, branco #FAFAF8
+FONTES: Montserrat para títulos (bold/black), Open Sans para corpo
+Adicione um sticky CTA no rodapé para mobile.
+Link do checkout: [COLOCAR LINK KIWIFY AQUI]</div></div>
+  </div></div>
+</div></div>
+
+<!-- T12 -->
+<div class="tc" id="t12"><div class="tlb" style="background:var(--blu)"></div>
+<div class="tt" onclick="tog('t12')">
+  <div class="tcb" onclick="event.stopPropagation();chk('t12')">✓</div>
+  <div style="flex:1;min-width:0">
+    <div class="tm"><span class="td-day">DIA 11</span><span class="td-area" style="background:var(--bd);color:var(--blu)">Qualidade</span><span class="td-time">⏱ 1h</span></div>
+    <div class="tt-title">Testar o funil completo de ponta a ponta — não avance sem isso</div>
+    <div class="tt-desc">50% dos funis têm algum erro que só aparece no teste. Descobrir agora custa R$20. Descobrir no dia do lançamento custa muito mais.</div>
+  </div>
+  <button class="tog">Abrir</button>
+</div>
+<div class="tb" id="b-t12">
+  <div class="ctabs"><button class="ctab active" onclick="tab(this,'p-t12-a')">Checklist de teste</button></div>
+  <div class="tp active" id="p-t12-a"><div class="tpc">
+    <div class="chl">
+      <div class="chi">LP abre corretamente no celular (mobile first — é onde a maioria compra)</div>
+      <div class="chi">Countdown funciona e reinicia em 15 minutos</div>
+      <div class="chi">Botão de compra leva ao checkout Kiwify correto</div>
+      <div class="chi">Order Bump aparece no checkout com o texto certo</div>
+      <div class="chi">Comprei com cartão real — pagamento confirmado</div>
+      <div class="chi">Fui redirecionado para a página de upsell OTO</div>
+      <div class="chi">E-mail de boas-vindas chegou em menos de 5 minutos</div>
+      <div class="chi">PDF abre corretamente — todas as páginas, sem erros</div>
+      <div class="chi">Evento "Purchase" apareceu no Meta Events Manager</div>
+    </div>
+  </div></div>
+</div></div>
+
+</div><!-- /tw fase 3 -->
+
+<!-- ══ FASE 4: LANÇAMENTO ══ -->
+<div class="sp"></div>
+<div class="fw">
+  <div class="fh">
+    <div class="fbar" style="background:var(--pur)"></div>
+    <div class="fi">
+      <div class="fn" style="color:var(--pur)">Fase 04</div>
+      <div class="ft">Lançamento</div>
+      <div class="fd">Dias 8–14 · Aquecer a audiência orgânica, vender para a lista quente, gerar as primeiras provas sociais antes do tráfego pago.</div>
+    </div>
+    <div class="fc" style="background:var(--pd);color:var(--pur)">3 tarefas</div>
+  </div>
+</div>
+<div class="tw">
+
+<!-- T13 -->
+<div class="tc" id="t13"><div class="tlb" style="background:var(--pur)"></div>
+<div class="tt" onclick="tog('t13')">
+  <div class="tcb" onclick="event.stopPropagation();chk('t13')">✓</div>
+  <div style="flex:1;min-width:0">
+    <div class="tm"><span class="td-day">D8–13</span><span class="td-area" style="background:var(--pd);color:var(--pur)">Orgânico</span><span class="td-time">⏱ 30–45min/dia</span></div>
+    <div class="tt-title">7 dias de aquecimento orgânico — 1 post/dia ativando as dores</div>
+    <div class="tt-desc">Sem revelar o produto ainda. O objetivo é fazer a audiência pensar "preciso disso" antes de você mostrar o que é. No dia do lançamento elas já estão prontas.</div>
+  </div>
+  <button class="tog">Abrir</button>
+</div>
+<div class="tb" id="b-t13">
+  <div class="ctabs">
+    <button class="ctab active" onclick="tab(this,'p-t13-a')">Calendário 7 dias</button>
+    <button class="ctab" onclick="tab(this,'p-t13-b')">Roteiros de Reels</button>
+  </div>
+  <div class="tp active" id="p-t13-a"><div class="tpc">
+    <div class="ig">
+      <dl class="ic"><dt>Dia 8</dt><dd>Reel: "Por que sua nota no iFood cai — e ninguém te conta a verdade" (cap. 5)</dd></dl>
+      <dl class="ic"><dt>Dia 9</dt><dd>Carrossel: "3 erros do portal iFood que derrubam seu lucro" (caps. 1, 2 e 7)</dd></dl>
+      <dl class="ic"><dt>Dia 10</dt><dd>Reel: "Faço promoção todo dia — veja se estou lucrando ou perdendo" (cap. 7)</dd></dl>
+      <dl class="ic"><dt>Dia 11</dt><dd>Story: bastidor do André usando o portal (sem revelar o produto)</dd></dl>
+      <dl class="ic"><dt>Dia 12</dt><dd>Reel: "O número que separa restaurante visível de invisível no iFood" (cap. 1)</dd></dl>
+      <dl class="ic"><dt>Dia 13</dt><dd>Story: enquete "Você sabe sua taxa de conversão de cardápio?" sim/não</dd></dl>
+    </div>
+    <div class="al al-y"><strong>Dia 13 à noite:</strong> Último story de aquecimento — "Amanhã revelo algo que venho construindo. Fique de olho." Não diga o que é ainda.</div>
+  </div></div>
+  <div class="tp" id="p-t13-b"><div class="tpc">
+    <div class="cb"><div class="ch" style="background:#0f001a"><span class="cl">Roteiros dos 4 Reels semanais pós-lançamento</span><button class="cp" onclick="cp(this)">Copiar</button></div>
+<div class="cv">REEL SEMANA 1
+Título: "Por que sua nota no iFood cai — e ninguém te conta a verdade"
+Roteiro: Explique que nota abaixo de 4.6 perde visibilidade. Mostre os 3 indicadores
+do Super Restaurante (capítulo 5). CTA: "Guia completo por R$17 — link na bio"
+
+REEL SEMANA 2
+Título: "Faço promoção todo dia no iFood — veja se estou lucrando ou perdendo"
+Roteiro: Mostre na tela do portal a diferença entre Incentivo iFood e Incentivo da Loja.
+Explique o risco de empilhar promoções. CTA para o guia.
+
+REEL SEMANA 3
+Título: "O prato mais pedido do meu cardápio não era o mais lucrativo"
+Roteiro: Explique o funil do cardápio (visualizações vs sacola vs concluído).
+Mostre como identificar pratos problemáticos. CTA para o guia.
+
+REEL SEMANA 4
+Título: "Como eu confiro todo mês se o iFood está me pagando o valor certo"
+Roteiro: Mostre a aba Financeiro do portal. Explique conciliação semanal em 4 passos.
+CTA para o guia.</div></div>
+  </div></div>
+</div></div>
+
+<!-- T14 -->
+<div class="tc" id="t14"><div class="tlb" style="background:var(--pur)"></div>
+<div class="tt" onclick="tog('t14')">
+  <div class="tcb" onclick="event.stopPropagation();chk('t14')">✓</div>
+  <div style="flex:1;min-width:0">
+    <div class="tm"><span class="td-day">DIA 14</span><span class="td-area" style="background:var(--pd);color:var(--pur)">Stories</span><span class="td-time">⏱ 2h</span></div>
+    <div class="tt-title">Publicar os 5 stories de lançamento — sequência narrativa completa</div>
+    <div class="tt-desc">Poste de manhã cedo. Stories têm mais alcance nas primeiras horas. A sequência leva da dor à compra em 5 telas.</div>
+  </div>
+  <button class="tog">Abrir</button>
+</div>
+<div class="tb" id="b-t14">
+  <div class="ctabs"><button class="ctab active" onclick="tab(this,'p-t14-a')">Textos dos 5 stories</button></div>
+  <div class="tp active" id="p-t14-a"><div class="tpc">
+    <div class="cb"><div class="ch" style="background:#0f001a"><span class="cl">Stories 1 a 5 — textos prontos para montar no Canva</span><button class="cp" onclick="cp(this)">Copiar</button></div>
+<div class="cv">STORY 1 — DOR (fundo vermelho escuro #1A0500)
+Título grande: "VOCÊ SABE DE ONDE VEM O LUCRO DO SEU DELIVERY?"
+Subtítulo: Ou você só olha o faturamento e torce para sobrar?
+Elemento: seta apontando para o próximo story
+
+STORY 2 — AGITAÇÃO (fundo preto #0d0d0d)
+Título: "O portal do iFood tem 10 abas e funções que controlam:"
+Lista:
+• Sua visibilidade no app
+• Seu lucro real por pedido
+• Seu ranking no algoritmo
+Frase final em amarelo: "A maioria dos donos nunca abre nenhuma delas."
+
+STORY 3 — REVELAÇÃO (foto do André ao fundo, overlay escuro)
+Texto sobre a foto: "Eu passei 13 anos aprendendo a usar cada uma."
+Rodapé: 15.000 pedidos/mês | 4 marcas no iFood
+
+STORY 4 — PRODUTO (mockup do e-book centralizado, fundo escuro)
+Título: "Guia de Boas Práticas iFood"
+Subtítulo: Os 10 pontos para usar todos os dias
+Preço em destaque (caixa amarela): R$17
+CTA: LINK NA BIO 👆
+
+STORY 5 — URGÊNCIA (fundo vermelho vivo #C8341A)
+Título grande: "SOMENTE HOJE: R$17"
+Subtítulo: Amanhã volta para R$47
+CTA: "VER O GUIA →" (adicione como sticker de link)</div></div>
+  </div></div>
+</div></div>
+
+<!-- T15 -->
+<div class="tc" id="t15"><div class="tlb" style="background:var(--pur)"></div>
+<div class="tt" onclick="tog('t15')">
+  <div class="tcb" onclick="event.stopPropagation();chk('t15')">✓</div>
+  <div style="flex:1;min-width:0">
+    <div class="tm"><span class="td-day">DIA 14</span><span class="td-area" style="background:var(--pd);color:var(--pur)">WhatsApp</span><span class="td-time">⏱ 2–3h</span></div>
+    <div class="tt-title">Disparar mensagem para a lista quente — meta: 20 vendas orgânicas</div>
+    <div class="tt-desc">Essas 20 vendas financiam os primeiros dias de tráfego pago. É a forma mais rápida de validar o produto antes de investir em anúncio.</div>
+  </div>
+  <button class="tog">Abrir</button>
+</div>
+<div class="tb" id="b-t15">
+  <div class="ctabs">
+    <button class="ctab active" onclick="tab(this,'p-t15-a')">Mensagem principal</button>
+    <button class="ctab" onclick="tab(this,'p-t15-b')">Resposta para objeções</button>
+  </div>
+  <div class="tp active" id="p-t15-a"><div class="tpc">
+    <div class="al al-y"><strong>Regra de ouro:</strong> Envie 1 a 1 — nunca em grupo. Personalize o nome. Máximo 20–30 por hora para não cair em spam. Priorize quem já comprou algo ou interagiu com conteúdo recentemente.</div>
+    <div class="cb"><div class="ch" style="background:#0f001a"><span class="cl">Mensagem WhatsApp — copie e adapte o [NOME]</span><button class="cp" onclick="cp(this)">Copiar</button></div>
+<div class="cv">Oi [NOME], tudo bem?
+
+Aqui é o André do Dominando Delivery.
+
+Acabei de lançar um guia que eu queria ter tido
+quando comecei minha operação no iFood.
+
+São os 10 pontos do portal que a maioria
+dos donos de restaurante ignora —
+e que custam margem, visibilidade e pedidos todo dia.
+
+Tá saindo por R$17 hoje.
+Amanhã volta pra R$47.
+
+Se você usa iFood, vale muito:
+→ [LINK DA LANDING PAGE]
+
+Qualquer dúvida me fala 👊</div></div>
+  </div></div>
+  <div class="tp" id="p-t15-b"><div class="tpc">
+    <div class="cb"><div class="ch" style="background:#0f001a"><span class="cl">Resposta para "O que é exatamente esse guia?"</span><button class="cp" onclick="cp(this)">Copiar</button></div>
+<div class="cv">É um guia prático focado no portal do iFood — o painel de gestão em parceiro.ifood.com.br.
+
+São os 10 pontos que a maioria usa mal ou nunca abre:
+tela de desempenho, relatórios, financeiro, avaliações, Super Restaurante,
+seus clientes, promoções, anúncios, cardápio e formas de pagamento.
+
+Cada um tem: o que é, por que importa, como usar e qual número você deve mirar.
+
+12 páginas, PDF, acesso imediato. R$17 com garantia de 7 dias.
+→ [LINK]</div></div>
+  </div></div>
+</div></div>
+
+</div><!-- /tw fase 4 -->
+
+<!-- ══ FASE 5: TRÁFEGO & ESCALA ══ -->
+<div class="sp"></div>
+<div class="fw">
+  <div class="fh">
+    <div class="fbar" style="background:var(--grn)"></div>
+    <div class="fi">
+      <div class="fn" style="color:var(--grn)">Fase 05</div>
+      <div class="ft">Tráfego &amp; Escala</div>
+      <div class="fd">Dias 15–30 · Meta Ads, monitoramento diário, otimização, remarketing e prova social recorrente.</div>
+    </div>
+    <div class="fc" style="background:var(--gd);color:var(--grn)">5 tarefas</div>
+  </div>
+</div>
+<div class="tw">
+
+<!-- T16 -->
+<div class="tc" id="t16"><div class="tlb" style="background:var(--grn)"></div>
+<div class="tt" onclick="tog('t16')">
+  <div class="tcb" onclick="event.stopPropagation();chk('t16')">✓</div>
+  <div style="flex:1;min-width:0">
+    <div class="tm"><span class="td-day">DIA 15</span><span class="td-area" style="background:var(--gd);color:var(--grn)">Meta Ads</span><span class="td-time">⏱ 2h</span></div>
+    <div class="tt-title">Criar e subir a campanha Meta Ads — 3 ad sets, R$50/dia</div>
+    <div class="tt-desc">Copie a estrutura abaixo exatamente. Depois que subir, não mexa por 5 dias. Qualquer alteração antes de 72h reseta o aprendizado do algoritmo.</div>
+  </div>
+  <button class="tog">Abrir</button>
+</div>
+<div class="tb" id="b-t16">
+  <div class="ctabs">
+    <button class="ctab active" onclick="tab(this,'p-t16-a')">Estrutura da campanha</button>
+    <button class="ctab" onclick="tab(this,'p-t16-b')">Textos dos anúncios</button>
+  </div>
+  <div class="tp active" id="p-t16-a"><div class="tpc">
+    <div class="al al-r"><strong>Antes de criar qualquer campanha:</strong> Confirme que o evento "Purchase" já disparou pelo menos 1 vez (teste da Fase 3). Sem isso o Meta não tem base para aprender.</div>
+    <div class="cb"><div class="ch" style="background:#001408"><span class="cl">Configuração completa — campanha + 3 ad sets</span><button class="cp" onclick="cp(this)">Copiar</button></div>
+<div class="cv">CAMPANHA
+  Nome: [DD] Guia iFood R$17 — Vendas
+  Objetivo: Vendas (Sales)
+  Orçamento: ABO (por ad set) — NÃO CBO
+  Pixel: selecione seu pixel
+  Evento de otimização: Purchase
+
+AD SET A — Interesse Amplo  |  R$20/dia
+  Nome: [A] Interesse Delivery/Restaurante
+  Localização: Brasil  |  Idade: 25–55
+  Interesses: iFood, Delivery, Gestão de restaurante, Empreendedorismo, Restaurante
+  Posicionamentos: Automático
+
+AD SET B — Interesse Específico  |  R$20/dia
+  Nome: [B] Portal iFood / Franquia Alimentação
+  Localização: Brasil  |  Idade: 28–55
+  Interesses: Franquia, Food truck, Cardápio digital, Empreendedor, Sebrae, Gestão empresarial
+
+AD SET C — Broad (sem interesse)  |  R$10/dia
+  Nome: [C] Broad / Sem Interesse
+  Localização: Brasil  |  Idade: 25–60
+  Interesses: NENHUM — deixe completamente aberto
+
+TOTAL: R$50/dia nos primeiros 7 dias
+
+ANÚNCIOS (repita em cada ad set — 3 anúncios por ad set):
+  Anúncio 1: hook_a.mp4  |  Nome: [Hook A] Portal que ninguém olha
+  Anúncio 2: hook_b.mp4  |  Nome: [Hook B] Promoção que quebra
+  Anúncio 3: hook_c.mp4  |  Nome: [Hook C] Número que muda tudo
+  Formato: Vídeo 9:16  |  URL: link da landing page  |  CTA: Saiba mais</div></div>
+  </div></div>
+  <div class="tp" id="p-t16-b"><div class="tpc">
+    <div class="cb"><div class="ch" style="background:#001408"><span class="cl">3 textos primários dos anúncios — um por hook</span><button class="cp" onclick="cp(this)">Copiar</button></div>
+<div class="cv">── TEXTO PRIMÁRIO A (para o Hook A) ──
+Você usa o portal do iFood todos os dias.
+Mas já abriu a Tela de Desempenho e olhou as 4 abas que controlam sua visibilidade?
+
+A maioria dos donos de restaurante nunca foi lá.
+E é exatamente por isso que alguns crescem e outros ficam estagnados.
+
+Criei um guia prático com os 10 pontos do portal
+que você precisa dominar para vender mais e sobrar mais.
+
+📄 PDF completo  ⚡ Acesso imediato  🛡️ Garantia de 7 dias  💰 R$17
+
+Clique e acesse agora →
+
+── TEXTO PRIMÁRIO B (para o Hook B) ──
+Quantos pedidos seu iFood fez hoje?
+
+Agora me responde: você sabe o que sobrou depois das taxas, promoções e repasses?
+
+Muitos restaurantes crescem em pedidos e encolhem em lucro.
+O portal do iFood tem as informações pra você entender isso —
+mas só quem sabe onde olhar consegue usar.
+
+Esse guia mostra os 10 pontos que mudam isso.
+R$17. Acesso imediato.
+
+── TEXTO PRIMÁRIO C (para o Hook C) ──
+Seu concorrente está no topo do iFood.
+Você está lá embaixo.
+
+Não é sorte. O algoritmo do iFood favorece quem domina
+indicadores específicos dentro do portal.
+
+Em 13 anos operando restaurantes com mais de 15.000 pedidos/mês,
+aprendi exatamente quais são esses indicadores.
+
+Coloquei tudo num guia de 10 pontos.
+R$17 — acesso imediato, garantia de 7 dias.</div></div>
+  </div></div>
+</div></div>
+
+<!-- T17 -->
+<div class="tc" id="t17"><div class="tlb" style="background:var(--grn)"></div>
+<div class="tt" onclick="tog('t17')">
+  <div class="tcb" onclick="event.stopPropagation();chk('t17')">✓</div>
+  <div style="flex:1;min-width:0">
+    <div class="tm"><span class="td-day">D15–19</span><span class="td-area" style="background:var(--gd);color:var(--grn)">Métricas</span><span class="td-time">⏱ 15min/dia</span></div>
+    <div class="tt-title">Monitorar métricas nos primeiros 5 dias — não mexa em nada</div>
+    <div class="tt-desc">Registre na planilha todos os dias. Analise. Mas não altere campanhas antes de 5 dias — o pixel precisa de dados para aprender.</div>
+  </div>
+  <button class="tog">Abrir</button>
+</div>
+<div class="tb" id="b-t17">
+  <div class="ctabs">
+    <button class="ctab active" onclick="tab(this,'p-t17-a')">Planilha + metas</button>
+    <button class="ctab" onclick="tab(this,'p-t17-b')">Diagnóstico de problemas</button>
+  </div>
+  <div class="tp active" id="p-t17-a"><div class="tpc">
+    <div class="cb"><div class="ch" style="background:#001408"><span class="cl">Cabeçalho da planilha — cole no Google Sheets linha 1</span><button class="cp" onclick="cp(this)">Copiar</button></div>
+<div class="cv">Data | Investimento | Impressões | Cliques | CTR | CPL | Vendas | Receita Bruta | ROAS | CPA | OB Aceitos | OB % | OTO Aceitos | OTO % | Reembolsos | Nota do dia</div></div>
+    <table class="mt" style="margin-top:16px">
+      <thead><tr><th>Métrica</th><th>Meta</th><th>Alerta vermelho</th><th>O que fazer</th></tr></thead>
+      <tbody>
+        <tr><td><strong>CTR (link)</strong></td><td class="mg">≥ 1,5%</td><td class="mw">Abaixo de 0,8%</td><td>Troque o criativo — problema no vídeo</td></tr>
+        <tr><td><strong>CPL</strong></td><td class="mg">≤ R$2,00</td><td class="mw">Acima de R$4</td><td>Segmentação errada — revise os interesses</td></tr>
+        <tr><td><strong>Conv. LP</strong></td><td class="mg">≥ 2%</td><td class="mw">Abaixo de 1%</td><td>LP fraca — revise headline e preço</td></tr>
+        <tr><td><strong>CPA</strong></td><td class="mg">≤ R$9,00</td><td class="mw">Acima de R$12</td><td>Não escale — analise o funil antes</td></tr>
+        <tr><td><strong>ROAS total</strong></td><td class="mg">≥ 2,5x</td><td class="mw">Abaixo de 1,5x</td><td>Pause — abaixo do break-even</td></tr>
+        <tr><td><strong>OB take rate</strong></td><td class="mg">≥ 25%</td><td class="mc">Abaixo de 15%</td><td>Reescreva o texto do order bump</td></tr>
+        <tr><td><strong>OTO take rate</strong></td><td class="mg">≥ 10%</td><td class="mc">Abaixo de 5%</td><td>Revise a página de upsell</td></tr>
+        <tr><td><strong>Reembolsos</strong></td><td class="mg">≤ 5%</td><td class="mw">Acima de 10%</td><td>Problema no produto ou promessa exagerada</td></tr>
+      </tbody>
+    </table>
+  </div></div>
+  <div class="tp" id="p-t17-b"><div class="tpc">
+    <table class="mt">
+      <thead><tr><th>Sintoma</th><th>Causa provável</th><th>Solução</th></tr></thead>
+      <tbody>
+        <tr><td>CTR baixo, poucos cliques</td><td>Hook do vídeo ruim</td><td>Grave novo hook. Não aumente budget.</td></tr>
+        <tr><td>CTR bom, pouca venda</td><td>LP não converte</td><td>Revise headline. Teste "Apenas R$17".</td></tr>
+        <tr><td>Vendas mas ROAS baixo</td><td>Criativo atrai público errado</td><td>Revise segmentação. Teste broad.</td></tr>
+        <tr><td>Alto reembolso</td><td>Expectativa vs entrega</td><td>Revise o copy do anúncio — menos promessa.</td></tr>
+        <tr><td>OB baixo</td><td>Texto do bump fraco</td><td>Reescreva. Teste preço menor.</td></tr>
+        <tr><td>Parou de escalar</td><td>Saturação de audiência</td><td>Novos criativos com depoimentos reais.</td></tr>
+      </tbody>
+    </table>
+  </div></div>
+</div></div>
+
+<!-- T18 -->
+<div class="tc" id="t18"><div class="tlb" style="background:var(--grn)"></div>
+<div class="tt" onclick="tog('t18')">
+  <div class="tcb" onclick="event.stopPropagation();chk('t18')">✓</div>
+  <div style="flex:1;min-width:0">
+    <div class="tm"><span class="td-day">DIA 20</span><span class="td-area" style="background:var(--gd);color:var(--grn)">Otimização</span><span class="td-time">⏱ 1h</span></div>
+    <div class="tt-title">Otimizar: escalar o vencedor, pausar os perdedores</div>
+    <div class="tt-desc">Com 5 dias de dados você já sabe o que funciona. Duplique o vencedor — nunca aumente mais de 20% o budget original de uma vez.</div>
+  </div>
+  <button class="tog">Abrir</button>
+</div>
+<div class="tb" id="b-t18">
+  <div class="ctabs"><button class="ctab active" onclick="tab(this,'p-t18-a')">Protocolo de decisão</button></div>
+  <div class="tp active" id="p-t18-a"><div class="tpc">
+    <div class="sl">
+      <div class="si"><div class="sn" style="background:var(--grn)">1</div><div class="sb"><h4>Pausar ad sets com ROAS abaixo de 2x por 3 dias seguidos</h4><p>Não tente "consertar" ad set perdedor. Concentre o budget no que está funcionando.</p></div></div>
+      <div class="si"><div class="sn" style="background:var(--grn)">2</div><div class="sb"><h4>Duplicar o ad set vencedor</h4><p>Botão "Duplicar" no Ads Manager. O duplicado começa com o mesmo budget. Isso permite que o Meta explore novos públicos sem perder o aprendizado original.</p></div></div>
+      <div class="si"><div class="sn" style="background:var(--grn)">3</div><div class="sb"><h4>Aumentar budget do original em 20%</h4><p>Se estava R$20/dia → vai para R$24/dia. Nunca mais que 20% por ajuste. Aguarde 48–72h antes do próximo aumento.</p></div></div>
+      <div class="si"><div class="sn" style="background:var(--grn)">4</div><div class="sb"><h4>Se CTR de todos os ad sets abaixo de 0,8%</h4><p>Problema é o criativo — não a segmentação. Grave um novo hook antes de qualquer outra mudança.</p></div></div>
+    </div>
+  </div></div>
+</div></div>
+
+<!-- T19 -->
+<div class="tc" id="t19"><div class="tlb" style="background:var(--grn)"></div>
+<div class="tt" onclick="tog('t19')">
+  <div class="tcb" onclick="event.stopPropagation();chk('t19')">✓</div>
+  <div style="flex:1;min-width:0">
+    <div class="tm"><span class="td-day">D20+</span><span class="td-area" style="background:var(--gd);color:var(--grn)">Remarketing</span><span class="td-time">⏱ 45min</span></div>
+    <div class="tt-title">Criar campanha de remarketing quando ROAS ≥ 3x por 3 dias</div>
+    <div class="tt-desc">Retargetando quem visitou mas não comprou. Use imagem estática — vídeo de remarketing converte menos. Budget enxuto: R$15/dia.</div>
+  </div>
+  <button class="tog">Abrir</button>
+</div>
+<div class="tb" id="b-t19">
+  <div class="ctabs"><button class="ctab active" onclick="tab(this,'p-t19-a')">Configuração completa</button></div>
+  <div class="tp active" id="p-t19-a"><div class="tpc">
+    <div class="cb"><div class="ch" style="background:#001408"><span class="cl">Campanha de remarketing — config + texto do anúncio</span><button class="cp" onclick="cp(this)">Copiar</button></div>
+<div class="cv">CAMPANHA
+  Nome: [DD] Remarketing — Guia iFood
+  Objetivo: Vendas  |  Budget: R$15/dia
+
+AD SET
+  Nome: Visitou LP — não comprou (7 dias)
+  Audiência: "Visitantes do site" → URL contém [sua landing page] → últimos 7 dias
+  Excluir: compradores (evento Purchase — últimos 30 dias)
+
+ANÚNCIO
+  Criativo: IMAGEM ESTÁTICA do mockup do e-book (não use vídeo)
+  Formato: 1:1 ou 4:5
+
+  Texto primário:
+  "Você visitou o Guia de Boas Práticas iFood e não finalizou.
+
+  Pode ter sido falta de tempo — faz sentido.
+  Mas deixa eu te lembrar do que está dentro:
+
+  → Como conferir se o iFood está te pagando certo
+  → Como sair do anonimato e aparecer mais no app
+  → Como fazer promoção sem furar sua margem
+
+  R$17. Garantia de 7 dias. Sem risco.
+
+  Clica e finaliza agora →"</div></div>
+  </div></div>
+</div></div>
+
+<!-- T20 -->
+<div class="tc" id="t20"><div class="tlb" style="background:var(--grn)"></div>
+<div class="tt" onclick="tog('t20')">
+  <div class="tcb" onclick="event.stopPropagation();chk('t20')">✓</div>
+  <div style="flex:1;min-width:0">
+    <div class="tm"><span class="td-day">D16–30</span><span class="td-area" style="background:var(--gd);color:var(--grn)">Escala</span><span class="td-time">⏱ recorrente</span></div>
+    <div class="tt-title">Reels semanais + coletar prova social dos compradores</div>
+    <div class="tt-desc">1 Reel por semana baseado nos capítulos do guia. Depoimentos coletados ativamente viram os próximos anúncios e reduzem o CPA com o tempo.</div>
+  </div>
+  <button class="tog">Abrir</button>
+</div>
+<div class="tb" id="b-t20">
+  <div class="ctabs">
+    <button class="ctab active" onclick="tab(this,'p-t20-a')">Coleta de depoimentos</button>
+    <button class="ctab" onclick="tab(this,'p-t20-b')">Checklist semanal</button>
+  </div>
+  <div class="tp active" id="p-t20-a"><div class="tpc">
+    <div class="cb"><div class="ch" style="background:#001408"><span class="cl">Mensagem para pedir depoimento — enviar D+7 após compra</span><button class="cp" onclick="cp(this)">Copiar</button></div>
+<div class="cv">Oi [NOME]! Aqui é o André.
+
+Faz uma semana desde que você baixou o guia.
+
+Você conseguiu aplicar algum dos 10 pontos no seu iFood?
+
+Mesmo um resultado pequeno já me ajuda muito —
+e pode ajudar outros donos de restaurante na mesma situação.
+
+Se quiser gravar um vídeo rápido (30 segundos, pelo WhatsApp mesmo)
+falando o que você achou ou algum resultado que teve, eu ficaria muito feliz.
+
+Qualquer coisa, me fala. Estou aqui 🙏</div></div>
+    <div class="al al-g" style="margin-top:12px"><strong>O que fazer com o depoimento:</strong> Print de WhatsApp → stories de prova social imediato. Vídeo → edite no CapCut + legenda → use como novo criativo de anúncio. Resultado numérico ("recuperei R$300 de repasse") → vira novo hook do André.</div>
+  </div></div>
+  <div class="tp" id="p-t20-b"><div class="tpc">
+    <div class="chl">
+      <div class="chi">Preenchi a planilha de métricas todos os dias da semana passada?</div>
+      <div class="chi">Qual ad set teve o melhor ROAS? (se ≥ 3x → duplique)</div>
+      <div class="chi">Qual ad set teve ROAS abaixo de 1,5x por 3 dias? (pause)</div>
+      <div class="chi">Coletei pelo menos 1 depoimento novo de comprador?</div>
+      <div class="chi">Postei pelo menos 1 Reel com dica do guia no perfil do André?</div>
+      <div class="chi">A landing page está funcionando? (faça um teste de compra)</div>
+      <div class="chi">O e-mail de boas-vindas está chegando nos compradores?</div>
+    </div>
+  </div></div>
+</div></div>
+
+</div><!-- /tw fase 5 -->
+<div class="bp"></div>
+</main>
+</div><!-- /shell -->
+
+<!-- FAB -->
+<div class="fab">
+  <div class="fab-menu" id="fabm">
+    <div class="fam-hd">Ir para fase</div>
+    <a class="fam-l" onclick="go('t01');closeFab()">🔴 Fase 1 — Produto<span>Dias 1–8 · Gravar e diagramar</span></a>
+    <a class="fam-l" onclick="go('t07');closeFab()">🟠 Fase 2 — Infraestrutura<span>Dias 8–11 · Kiwify, pixel, e-mails</span></a>
+    <a class="fam-l" onclick="go('t11');closeFab()">🔵 Fase 3 — Landing Page<span>Dias 10–11 · Publicar e testar</span></a>
+    <a class="fam-l" onclick="go('t13');closeFab()">🟣 Fase 4 — Lançamento<span>Dias 8–14 · Orgânico e lista quente</span></a>
+    <a class="fam-l" onclick="go('t16');closeFab()">🟢 Fase 5 — Tráfego &amp; Escala<span>Dias 15–30 · Meta Ads</span></a>
+  </div>
+  <button class="fab-btn" onclick="toggleFab()">⚡</button>
+</div>
+
+<script define:vars={{ serverStateStr }}>
+const SK='dd_os_v2';
+let serverState = {};
+try {
+  serverState = JSON.parse(serverStateStr);
+} catch(e) {}
+
+function load(){
+  return serverState || {};
+}
+
+function save(s){
+  serverState = s;
+  // Make a background request to save in SQLite.
+  fetch(window.location.href, {
+    method: 'POST',
+    body: JSON.stringify(s)
+  }).catch(e => console.error("Could not save to db: ", e));
+  // optionally, save locally as fallback
+  try{localStorage.setItem(SK,JSON.stringify(s))}catch(e){}
+}
+
+function tog(id){
+  const b=document.getElementById('b-'+id);
+  const c=document.getElementById(id);
+  const btn=c.querySelector('.tog');
+  const isOpen=b.classList.contains('open');
+  document.querySelectorAll('.tb.open').forEach(x=>x.classList.remove('open'));
+  document.querySelectorAll('.tog').forEach(x=>x.textContent='Abrir');
+  if(!isOpen){b.classList.add('open');btn.textContent='Fechar'}
+}
+
+function chk(id){
+  const c=document.getElementById(id);
+  const done=c.classList.toggle('done');
+  const s=load();s[id]=done;save(s);
+  upNav(id,done);upProg();
+}
+
+function upNav(id,done){
+  const nc=document.getElementById('nc-'+id);
+  const ni=document.querySelector(`.ni[data-t="${id}"]`);
+  if(nc)nc.textContent=done?'✓':'';
+  if(ni){done?ni.classList.add('done'):ni.classList.remove('done')}
+}
+
+function upProg(){
+  const done=document.querySelectorAll('.tc.done').length;
+  const pct=Math.round(done/21*100);
+  const bar=document.getElementById('pbar');
+  const lbl=document.getElementById('pct');
+  const cnt=document.getElementById('dcnt');
+  if(bar)bar.style.width=pct+'%';
+  if(lbl)lbl.textContent=done+' / 21';
+  if(cnt)cnt.textContent=done;
+}
+
+function restore(){
+  const s=load();
+  Object.entries(s).forEach(([id,done])=>{
+    if(done){
+      const c=document.getElementById(id);
+      if(c){c.classList.add('done');upNav(id,true)}
+    }
+  });
+  upProg();
+}
+
+function tab(btn,pid){
+  const body=btn.closest('.tb');
+  body.querySelectorAll('.ctab').forEach(t=>t.classList.remove('active'));
+  body.querySelectorAll('.tp').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  const p=document.getElementById(pid);
+  if(p)p.classList.add('active');
+}
+
+function cp(btn){
+  const v=btn.closest('.cb').querySelector('.cv');
+  const text=v.innerText;
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='Copiado ✓';btn.classList.add('ok');
+    setTimeout(()=>{btn.textContent='Copiar';btn.classList.remove('ok')},2000);
+  }).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    btn.textContent='Copiado ✓';btn.classList.add('ok');
+    setTimeout(()=>{btn.textContent='Copiar';btn.classList.remove('ok')},2000);
+  });
+}
+
+function go(id){
+  const el=document.getElementById(id);
+  if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  const ni=document.querySelector(`.ni[data-t="${id}"]`);
+  if(ni)ni.classList.add('active');
+}
+
+// Scroll spy
+const cards=document.querySelectorAll('.tc[id]');
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const id=e.target.id;
+      document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+      const ni=document.querySelector(`.ni[data-t="${id}"]`);
+      if(ni)ni.classList.add('active');
+    }
+  });
+},{threshold:0.5});
+cards.forEach(c=>obs.observe(c));
+
+function toggleFab(){document.getElementById('fabm').classList.toggle('open')}
+function closeFab(){document.getElementById('fabm').classList.remove('open')}
+document.addEventListener('click',e=>{
+  const fab=document.querySelector('.fab');
+  if(fab&&!fab.contains(e.target))closeFab();
+});
+
+restore();
+</script>
+</body>
+</html>
