@@ -1634,12 +1634,13 @@ Qualquer coisa, me fala. Estou aqui 🙏</div></div>
   <button class="fab-btn" onclick="toggleFab()">⚡</button>
 </div>
 
-<script define:vars={{ serverStateStr }}>
+<script define:vars={{ initialServerStateStr: serverStateStr }}>
 const SK='dd_os_v2';
 let serverState = {};
 try {
-  serverState = JSON.parse(serverStateStr);
+  serverState = JSON.parse(initialServerStateStr || '{}');
 } catch(e) {}
+
 
 function load(){
   return serverState || {};
