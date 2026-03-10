@@ -1634,7 +1634,7 @@ Qualquer coisa, me fala. Estou aqui 🙏</div></div>
   <button class="fab-btn" onclick="toggleFab()">⚡</button>
 </div>
 
-<script define:vars={{ initialServerStateStr: serverStateStr }}>
+<script define:vars={{ initialServerStateStr: serverStateStr }} is:inline>
 const SK='dd_os_v2';
 let serverState = {};
 try {
@@ -1753,6 +1753,19 @@ document.addEventListener('click',e=>{
   const fab=document.querySelector('.fab');
   if(fab&&!fab.contains(e.target))closeFab();
 });
+
+window.load = load;
+window.save = save;
+window.tog = tog;
+window.chk = chk;
+window.upNav = upNav;
+window.upProg = upProg;
+window.restore = restore;
+window.tab = tab;
+window.cp = cp;
+window.go = go;
+window.toggleFab = toggleFab;
+window.closeFab = closeFab;
 
 restore();
 </script>
