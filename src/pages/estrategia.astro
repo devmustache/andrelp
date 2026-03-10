@@ -11,8 +11,8 @@ if (Astro.request.method === "POST") {
         // Insert or Update the JSON state
         await redis.set('checklist_progress', JSON.stringify(bodyJson));
         return new Response(JSON.stringify({ success: true }));
-    } catch (e) {
-        return new Response(JSON.stringify({ success: false }), { status: 500 });
+    } catch (e: any) {
+        return new Response(JSON.stringify({ success: false, error: e?.message || String(e) }), { status: 500 });
     }
 }
 
